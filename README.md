@@ -1,8 +1,8 @@
 # GuildQuality Skills
 
-Ask your AI assistant about GuildQuality customer feedback. Compare months and locations, check scores, and find common themes in customer comments.
+Use your own GuildQuality feedback with your AI assistant. Upload an approved GuildQuality export to analyze its records without an API key, or connect your account to read fresh feedback. Compare months and locations, check scores, and find common themes in comments.
 
-**Current release: 0.2.8-beta.3.** This beta includes **Analyze Feedback**. Use it with a survey export or connect it to your GuildQuality account.
+**Current release: 0.2.8-beta.3.** This beta includes **Analyze Feedback**.
 
 **[Download GuildQuality Skills (beta)](https://github.com/guildquality/guildquality-skills/releases/download/v0.2.8-beta.3/guildquality-analyze-feedback.zip)**
 
@@ -16,7 +16,6 @@ The other files in this repository help you set up and use the skill:
 
 - `USAGE.md`: the setup and reporting guide.
 - `EXAMPLES.md`: questions to try. These guides are for reading, not installation.
-- `examples/synthetic-feedback.json`: made-up feedback to try without an API key.
 - `skills/guildquality-analyze-feedback/`: the same skill files, unpacked so you can browse them.
 
 The package is available under the [MIT License](LICENSE). You may use, change, and share it under those terms.

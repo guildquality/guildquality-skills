@@ -1,6 +1,6 @@
 # Using GuildQuality Skills
 
-GuildQuality Skills helps your AI assistant compare feedback, check scores, and find themes in customer comments. This beta includes **Analyze Feedback**. Start with a survey export or connect it to your GuildQuality account.
+GuildQuality Skills helps your AI assistant compare feedback, check scores, and find themes in customer comments. This beta includes **Analyze Feedback**. Upload your own approved GuildQuality export to analyze its records without an API key, or connect your account to read fresh feedback.
 
 <p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.2.8-beta.3/guildquality-analyze-feedback.zip">Download GuildQuality Skills (beta)</a></p>
 
@@ -10,7 +10,7 @@ The download holds the whole skill folder. The [release page](https://github.com
 
 Use your company's approved AI workspace. Share only feedback your company allows you to send to your chosen AI service.
 
-A survey export needs no API key. To connect your account, the assistant also needs local files, command tools, Python 3.9 or later with time zone data, and access to the GuildQuality API. Connection setup has been checked in ChatGPT desktop on macOS. Ask GuildQuality Support about another system or a hosted chat. Installing a skill alone does not give a chat access to your computer or saved connection.
+To connect your account, the assistant also needs local files, command tools, Python 3.9 or later with time zone data, and access to the GuildQuality API. Connection setup has been checked in ChatGPT desktop on macOS. Ask GuildQuality Support about another system or a hosted chat. Installing a skill alone does not give a chat access to your computer or saved connection.
 
 The beta reads feedback and writes reports. Use the GuildQuality app to send surveys, import customers, or publish review replies.
 
@@ -38,7 +38,7 @@ Ask:
 
 > Use GuildQuality Analyze Feedback. Check that the installed skill is available. Keep my exports and reports in this private analysis folder. Tell me whether this chat can use local files, Python tools, and a saved GuildQuality connection.
 
-If you are using an export, add the approved file and move to step 4. The [made-up sample feedback](https://github.com/guildquality/guildquality-skills/blob/main/examples/synthetic-feedback.json) is a good place to try the skill without an API key.
+If you are using your GuildQuality export, upload the approved file and move to step 4.
 
 ## 3. Connect your account privately
 
@@ -60,9 +60,9 @@ The API key keeps the permissions your administrator gave it, even though this s
 
 ## 4. Check your first report
 
-Start with a clear question, a short period, and the locations you agreed to include:
+For an uploaded export, first ask which dates, locations, questions, rating scales, import flags, and record IDs it contains. Ask what is missing before calculating a score. For a connected account, start with a short period and the locations you agreed to include. Then ask:
 
-> Summarize our completed survey feedback for last month. State the dates, time zone, locations, response counts, exclusions, and any missing data. Show source survey IDs for examples.
+> Summarize our completed survey feedback for the period we selected. State the dates, time zone, locations, response counts, exclusions, and any missing data. Show source survey IDs for examples.
 
 Compare the result with GuildQuality using the same dates, locations, questions, and filters. Ask for survey or review IDs so you can find the source records. Use exact dates for a report you can repeat.
 
