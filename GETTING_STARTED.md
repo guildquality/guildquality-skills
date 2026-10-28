@@ -1,74 +1,64 @@
 # Get started with GuildQuality Skills
 
-GuildQuality Skills helps your AI assistant answer questions about survey feedback, compare results, and find themes with examples from your data.
+GuildQuality Skills helps your AI assistant compare customer feedback, calculate scores, and find themes with examples from your data. The current beta includes **Analyze Feedback** for reporting with an export or a private GuildQuality connection.
 
-This guided pilot includes **feedback analysis only**. It does not send surveys, import customers, publish review replies, or change your GuildQuality account. Your API key can still have permission to change data, so keep it private even when you use it only for reporting.
+<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.2.8-beta.1/guildquality-analyze-feedback.zip">Download GuildQuality Skills (beta)</a></p>
+
+The download contains the complete skill folder. Optional checksum files on the release page verify downloads; they are not part of the installation.
 
 ## Before you begin
 
-Ask your GuildQuality contact for the approved feedback-analysis package and help choosing the account and locations to include. Use your company's approved AI workspace.
+Use your company's approved AI workspace. For a live connection, you need a ChatGPT desktop conversation with local folder and command access, Python 3.9 or later, and permission to contact GuildQuality. Private setup has been checked on macOS; ask your GuildQuality representative about other operating systems or hosted chat environments.
 
-For a live connection, the pilot uses a ChatGPT desktop conversation with access to a local folder and command tools, Python 3.9 or later, and permission to contact GuildQuality. The private setup process has been checked on macOS. Other operating systems and hosted chat environments may need a different approved setup; contact us before relying on them for live access.
+You can also start with an approved survey export without connecting an account or entering an API key. The beta reads feedback and prepares reports; it does not send surveys, publish replies, or change your GuildQuality account.
 
-You can also analyze an approved survey export without connecting your account or entering an API key.
+## 1. Add the skill
 
-## 1. Add the complete skill folder
-
-1. Download the feedback-analysis ZIP provided by GuildQuality and unzip it.
+1. Download the ZIP above and unzip it.
 2. Keep the whole `guildquality-analyze-feedback` folder together, including its scripts and references.
-3. In the ChatGPT desktop app, start a new conversation and select the local folder containing the skill. Choose local files or this computer if the app asks where to work. The labels may vary by app version; a separate Work-mode switch is not required.
+3. In ChatGPT desktop, start a conversation and select the local folder containing the skill. Choose local files or this computer if asked. A separate Work-mode switch is not required.
 4. Ask: **“Read the GuildQuality feedback-analysis skill in this folder. Check whether this conversation can use its local files, Python tools, and GuildQuality connection.”**
 
-Uploading `SKILL.md` as a chat attachment is not a complete installation. Installing the skill also does not connect your GuildQuality account.
+Use the complete folder rather than uploading `SKILL.md` alone. The repository's guides and optional checksum files do not need to be installed.
 
 ## 2. Connect your account privately
 
-A GuildQuality administrator must enable API access and provide the existing API key through your approved private process. Your GuildQuality contact will help confirm the account ID and allowed company IDs. Do not infer account access from the key alone.
+A GuildQuality administrator enables API access and provides the existing key through your approved private process. Your GuildQuality contact can help confirm the account and locations to include.
 
 Ask the assistant:
 
 > Help me set up the packaged GuildQuality connection helper for my approved account and locations. Prepare the setup command for my private terminal. Do not ask me to put an API key in chat.
 
-Review the account and scope before running that command in your own interactive terminal. Enter the key only at the helper's hidden prompt. Choose an existing saved report when the helper asks; do not create one just to pass setup.
+Review the account and scope, then run the command in your own interactive terminal. Enter the key at the helper's hidden prompt and choose an existing saved report when asked.
 
-**Never put the key in a chat, skill file, ZIP, screenshot, uploaded file, or command argument.**
+**Keep the key out of chat, the skill folder, screenshots, uploaded files, and command arguments.** If setup asks for an account binding, get the independently checked binding file from GuildQuality or your account administrator; the assistant should not create one from assumptions.
 
-Some accounts need an additional account binding before reporting. If the helper asks for one, request the independently checked binding file from your GuildQuality contact or account administrator. The assistant must not invent a binding or assign records to an account on its own.
+The helper saves a separate private connection for later reports. On macOS, its profile and token are plaintext files protected by local file permissions, not an encrypted password vault. Keep them outside shared folders. The assistant needs the profile's path, not a copy of the key in its instructions.
 
-The helper saves a separate private connection profile on your computer and reuses it for later reports. On the supported setup, the profile and token are plaintext files protected by local file permissions; they are not an encrypted password vault. Keep them outside the skill folder and shared folders. The assistant should remember the profile's path, not copy the key into its instructions.
-
-If no existing report can be selected or the connection check fails, keep the current configuration and contact GuildQuality. Do not rotate a shared key or try another account just to make a test pass.
+If the check fails, keep the current configuration and contact GuildQuality before changing a key or selecting another account.
 
 ## 3. Check your first report
 
-Start with a short period and the locations agreed for your pilot. For example:
+Start with a short period and an agreed set of locations:
 
-> Summarize our completed survey feedback for last month. State the dates, time zone, locations, number of responses, exclusions, and any missing data. Show source survey IDs for examples.
+> Summarize our completed survey feedback for last month. State the dates, time zone, locations, response counts, exclusions, and any missing data. Show source survey IDs for examples.
 
-Compare the result with GuildQuality using the same dates, locations, survey questions and filters. Different date definitions or rating scales can produce different results. NPS applies only to an eligible 0–10 recommendation question; a five-star or satisfaction rating should not be converted to NPS.
+Compare the result with GuildQuality using the same dates, locations, questions, and filters. Use NPS for a verified 0–10 recommendation question; keep other rating scales separate.
 
-Then start a fresh conversation with access to the same folder and saved profile. Ask for a new connection check and report. You should not need to enter the key again. A previous saved “verified” status is not proof of a fresh API read.
+Then start a fresh conversation with the same folder and saved profile. Ask for a new connection check and report. You should not need to enter the key again.
 
 ## Questions to try
 
-- **What changed?** “Compare last month's feedback with the month before. Show response counts and explain changes without assuming a cause.”
-- **Where should we look first?** “Which comparable locations declined most? Show sample sizes and flag small samples, new locations and missing feedback.”
-- **What are customers saying?** “What communication complaints appear in this period? Count them using a clear denominator and show representative survey IDs and exact excerpts.”
-- **Are these results comparable?** “Do these survey forms use equivalent questions and scales? Explain what can be combined and what must stay separate.”
-- **What is missing?** “Which locations or records are missing from this answer? Is the retrieval complete for the account and period we selected?”
+- **Track change:** “Compare last month's feedback with the month before. Show response counts and explain changes without assuming a cause.”
+- **Choose where to look:** “Which comparable locations declined most? Show sample sizes and flag small samples, new locations, and missing feedback.”
+- **Explore comments:** “What communication complaints appear in this period? State the counting rule and show representative survey IDs and exact excerpts.”
+- **Check comparisons:** “Do these survey forms use equivalent questions and scales? Explain what can be combined.”
+- **Check coverage:** “Which locations and records does this answer cover? Is retrieval complete for our selected account and period?”
 
-## Understand the limits
+For larger accounts, agree the location mapping and retrieval plan with GuildQuality. Complete periods or groups make reports easier to verify; a missing location is missing coverage rather than a zero score. Themes help identify issues to investigate, while source comments provide the evidence behind them.
 
-An answer covers only the records and locations the connection or export actually supplies. A missing location is not automatically a zero score. Incomplete pages do not establish a company-wide total or a definitive ranking.
+## Update, disconnect, or get help
 
-Large accounts may need several bounded retrievals. Your GuildQuality contact should verify the hierarchy, permitted scope and retrieval plan before a whole-company report. Installing a skill does not prove that every location or account permission is covered.
+Install a reviewed release and keep your existing working connection when updating the skill. Removing the skill does not remove the separate connection or revoke its API key. Confirm which connection files are dedicated to this workflow before removing them, and ask your administrator before changing a key used by other integrations.
 
-Themes produced by the assistant are its analysis of the supplied feedback. They may differ from named insights in GuildQuality. Comments can suggest issues to investigate; they do not prove what caused a score change or whether an unhappy customer's issue has been resolved.
-
-## Update, disconnect or get help
-
-Use only the reviewed package version provided by GuildQuality. Keep an existing working connection when updating the skill; setup and authentication are separate from installation.
-
-Removing the skill does not remove its separate saved connection or revoke the API key. To disconnect, remove only the dedicated connection files after confirming they are not shared with another workflow. Ask your administrator before rotating or revoking a key used by other integrations.
-
-For help, contact your GuildQuality representative. Share the package version, app and operating system, requested period and locations, and the error message with secrets and customer contact details removed. Do not send your API key or private connection files.
+For help, contact your GuildQuality representative with the release version, app and operating system, question, period, locations, and any error message. Remove secrets and customer contact details; keep the API key and private connection files to yourself.

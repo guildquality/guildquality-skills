@@ -66,7 +66,7 @@ This connection helper is reporting-only. Production writes are blocked by the r
 
 ## Single accounts with omitted survey ownership
 
-Some single-account survey responses omit per-record company fields. The helper refuses unknown ownership by default. If this affects the pilot, a GuildQuality contact or customer administrator must independently verify the account is a leaf and the selected saved report belongs to that exact root. The API key's own report list or a single-ID scope is not independent proof. The administrator supplies a private binding file containing the reviewed origin, root, report marker and evidence reference; the assistant must not invent that file or its verification.
+Some single-account survey responses omit per-record company fields. The helper refuses unknown ownership by default. If this affects the connection, a GuildQuality contact or customer administrator must independently verify the account is a leaf and the selected saved report belongs to that exact root. The API key's own report list or a single-ID scope is not independent proof. The administrator supplies a private binding file containing the reviewed origin, root, report marker and evidence reference; the assistant must not invent that file or its verification.
 
 After the existing reporting connection is configured, apply the administrator-supplied file explicitly:
 
