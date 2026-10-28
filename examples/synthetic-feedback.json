@@ -1,0 +1,553 @@
+{
+  "synthetic": true,
+  "source": "Fictional customer demonstration; no account or network access.",
+  "timezone": "America/New_York",
+  "pagination_complete": true,
+  "metric": {
+    "questionId": 1,
+    "ratingScale": "0-10",
+    "name": "Likelihood to recommend"
+  },
+  "data": [
+    {
+      "id": 1,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-02T16:00:00+00:00",
+      "endedAt": "2026-09-02T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 10,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-03T16:00:00+00:00",
+      "endedAt": "2026-09-03T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 9,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-04T16:00:00+00:00",
+      "endedAt": "2026-09-04T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 8,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-05T16:00:00+00:00",
+      "endedAt": "2026-09-05T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 7,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-06T16:00:00+00:00",
+      "endedAt": "2026-09-06T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 6,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-07T16:00:00+00:00",
+      "endedAt": "2026-09-07T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 4,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-08T16:00:00+00:00",
+      "endedAt": "2026-09-08T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 10,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-09T16:00:00+00:00",
+      "endedAt": "2026-09-09T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 9,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-10T16:00:00+00:00",
+      "endedAt": "2026-09-10T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 8,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-11T16:00:00+00:00",
+      "endedAt": "2026-09-11T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 7,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-12T16:00:00+00:00",
+      "endedAt": "2026-09-12T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 6,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-13T16:00:00+00:00",
+      "endedAt": "2026-09-13T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 4,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-14T16:00:00+00:00",
+      "endedAt": "2026-09-14T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 10,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-15T16:00:00+00:00",
+      "endedAt": "2026-09-15T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 9,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-16T16:00:00+00:00",
+      "endedAt": "2026-09-16T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 8,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-17T16:00:00+00:00",
+      "endedAt": "2026-09-17T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 7,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-18T16:00:00+00:00",
+      "endedAt": "2026-09-18T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 6,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-19T16:00:00+00:00",
+      "endedAt": "2026-09-19T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 4,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-20T16:00:00+00:00",
+      "endedAt": "2026-09-20T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 10,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-21T16:00:00+00:00",
+      "endedAt": "2026-09-21T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 9,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-22T16:00:00+00:00",
+      "endedAt": "2026-09-22T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 8,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-23T16:00:00+00:00",
+      "endedAt": "2026-09-23T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 7,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-24T16:00:00+00:00",
+      "endedAt": "2026-09-24T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 6,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-25T16:00:00+00:00",
+      "endedAt": "2026-09-25T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 4,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-02T16:00:00+00:00",
+      "endedAt": "2026-09-02T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 10,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-03T16:00:00+00:00",
+      "endedAt": "2026-09-03T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 9,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-04T16:00:00+00:00",
+      "endedAt": "2026-09-04T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 8,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-05T16:00:00+00:00",
+      "endedAt": "2026-09-05T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 7,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-06T16:00:00+00:00",
+      "endedAt": "2026-09-06T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 6,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-07T16:00:00+00:00",
+      "endedAt": "2026-09-07T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 4,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-08T16:00:00+00:00",
+      "endedAt": "2026-09-08T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 10,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-09T16:00:00+00:00",
+      "endedAt": "2026-09-09T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 9,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-10T16:00:00+00:00",
+      "endedAt": "2026-09-10T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 8,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-11T16:00:00+00:00",
+      "endedAt": "2026-09-11T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 7,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "companyId": 1001,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-12T16:00:00+00:00",
+      "endedAt": "2026-09-12T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 6,
+          "ratingScale": "0-10"
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "companyId": 1002,
+      "status": "Completed",
+      "isImported": false,
+      "sendAt": "2026-09-13T16:00:00+00:00",
+      "endedAt": "2026-09-13T16:00:00+00:00",
+      "questions": [
+        {
+          "questionId": 1,
+          "rating": 4,
+          "ratingScale": "0-10"
+        }
+      ]
+    }
+  ]
+}

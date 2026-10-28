@@ -1,0 +1,26 @@
+{
+  "audience": "guided customer pilot",
+  "customer_runtime_files": [
+    "SKILL.md",
+    "manifest.json",
+    "references/analysis.md",
+    "references/api.md",
+    "references/authentication.md",
+    "scripts/gq_analysis.py",
+    "scripts/gq_api.py",
+    "scripts/gq_connect.py",
+    "scripts/gq_transport.py"
+  ],
+  "guide_sha256": "4b800efb020fb560d3f0a304981ef76bffa6927989a0a0b51c4743f9d525b075",
+  "package": {
+    "file": "downloads/guildquality-analyze-feedback.zip",
+    "file_count": 9,
+    "sha256": "2c23d5aec4f23e39b94361864a30a773686259ab79dcfc5bf3a7090754a22c35"
+  },
+  "production_mutations_supported": false,
+  "schema_version": 1,
+  "version": "0.2.7",
+  "workflows": [
+    "guildquality-analyze-feedback"
+  ]
+}

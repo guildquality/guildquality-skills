@@ -1,0 +1,15 @@
+{
+  "files": {
+    "SKILL.md": "d29c862c5f46e57aea291507caaa732782012b72eeec718bcda6a9bd56353290",
+    "references/analysis.md": "bba98f260327e85158164c24635eef9c129d5cd51a42927a846941b0b7dd8d5b",
+    "references/api.md": "4881fc539759f0e7b4c0dca9759c768c464fbeb0f8f905e136a1d4d9ecfcfb1f",
+    "references/authentication.md": "60f46e5e3280e2e5fc47eb5f2d111183c2c86be2e448935c514829bd07ef2167",
+    "scripts/gq_analysis.py": "6a34656436fd0a2fff9274a712faafd765da598f4d6586836716372f2898b33b",
+    "scripts/gq_api.py": "cd50947265ab94b3df49072415b9d0cac6e1cab79e4b89344eae099f90401dd8",
+    "scripts/gq_connect.py": "d35ff8104129c64459ff059ca5c74f2dd1df3d8c17935796af9b1a1d5d61d90d",
+    "scripts/gq_transport.py": "4c6711d17f72557002c7c3167c8a130cba4d42aef67096632c152f402b81bf7f"
+  },
+  "schema_version": 1,
+  "skill": "guildquality-analyze-feedback",
+  "version": "0.2.7"
+}
