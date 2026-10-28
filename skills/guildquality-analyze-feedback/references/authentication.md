@@ -1,6 +1,6 @@
 # Connect GuildQuality privately
 
-Use one private connection profile for the same account/environment across all three GuildQuality skills. A skill ZIP contains instructions and code, not a connection or secret store. Never put an API key in a skill, ZIP, chat, prompt, attachment, screenshot, or command argument. The Company API key can write within its server-granted scope; selecting a reporting skill does not reduce that server authority.
+Use one explicit private connection profile for the selected account and environment. A skill ZIP contains instructions and code, not a connection or secret store. Never put an API key in a skill, ZIP, chat, prompt, attachment, screenshot, or command argument. The Company API key can write within its server-granted scope; selecting a reporting skill does not reduce that server authority.
 
 ## Start with the actual client
 
@@ -14,7 +14,7 @@ An `.env` file is useful only when the selected runtime already has an explicit 
 
 ## Customer setup: one explicit profile
 
-Commands below run from the installed skill folder. Use a dedicated private directory outside the installed skill and repository, with one account/environment per directory. All three skills can use the same profile path. The examples contain no key; replace account/scope/origin with explicitly approved values, never inferred from the key.
+Commands below run from the installed skill folder. Use a dedicated private directory outside the installed skill and repository, with one account/environment per directory. The examples contain no key; replace account/scope/origin with explicitly approved values, never inferred from the key.
 
 First inspect the selected profile without contacting the API:
 
@@ -48,7 +48,7 @@ After successful preflight, use the reporting-only interface, for example:
 python3 scripts/gq_connect.py --profile "$HOME/.config/guildquality/customer/connection.json" get '/surveys?questions=1&since=2026-09-01&until=2026-09-30&dateFilter=endedAt&isImported[]=0' --all-pages
 ```
 
-The customer connector exposes setup, status, preflight, and GET reporting; it does not grant action execution. Read [API behavior](api.md) for cohort and pagination constraints. A setup connection is unnecessary for an approved file-only analysis, review draft from provided text, or survey proposal that makes no live-state claim.
+The customer connector exposes setup, status, preflight, and GET reporting; it does not grant action execution. Read [API behavior](api.md) for cohort and pagination constraints. An approved file-only analysis does not need a live connection.
 
 ## What persistence actually proves
 
@@ -60,9 +60,9 @@ Uninstalling a skill does not delete this separate connection, and deleting the 
 
 ## Existing managed connections
 
-Preserve an existing verified explicit environment configuration instead of recreating it. The advanced `gq_api.py --manifest FILE --environment NAME` interface remains available for an administrator-managed configuration. Keep the manifest, private credential and saved state outside the skill and shared repositories. A configured account scope and local helper checks do not reduce the server-granted powers of the underlying API key.
+Preserve an existing verified explicit environment configuration instead of recreating it. For an existing administrator-managed reporting configuration, the advanced `gq_api.py --manifest FILE --environment NAME` interface is also available. Use its `preflight` and `get` commands rather than recreating a working connection. Keep the manifest, private credential and saved state outside the skill and shared repositories. A configured account scope and local helper checks do not reduce the server-granted powers of the underlying API key.
 
-This connection helper is reporting-only. Production writes are blocked by the runtime. Any separately supported staging action requires its own exact approved targets, matching human approval and current-state checks; installing a reporting connection does not authorize it.
+This connection helper is reporting-only. Production writes are blocked by the runtime. The reporting connection does not authorize changes to customer records, outreach, or review publication.
 
 ## Single accounts with omitted survey ownership
 

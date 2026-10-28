@@ -1,0 +1,12 @@
+# Keep private connections and local output out of the checkout.
+.env
+.env.*
+*.token
+token
+connection.json
+environment.json
+__pycache__/
+*.py[cod]
+.DS_Store
+retrieved.json
+retrieved-*.json

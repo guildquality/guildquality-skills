@@ -12,7 +12,7 @@ import time
 from urllib.parse import parse_qsl, urlencode, urlsplit
 import gq_transport as transport
 from gq_transport import ClientError
-VERSION = '0.2.8-beta.1'
+VERSION = '0.2.8-beta.2'
 READS = {'surveys', 'reviews', 'children', 'reports', 'team', 'custom-fields', 'project-user-roles', 'review-summary', 'contacts/opt-in-status'}
 SAFE_QUERY = {'since', 'until', 'dateFilter', 'orderBy', 'status', 'reportId', 'questions', 'filterByCompanyIds', 'page', 'contactEmails', 'projectIds', 'contactIds', 'isImported', 'archived'}
 SURVEY_STATUS_GROUPS = {'completed': frozenset({'Completed'}), 'in-progress': frozenset({'In progress'}), 'scheduled': frozenset({'Scheduled'}), 'abandoned': frozenset({'Abandoned'}), 'no-response': frozenset({'Abandoned', 'No response'})}
@@ -82,12 +82,13 @@ def private_dir(path):
 def private_write(path, value, exclusive=True):
     path = Path(path)
     private_dir(path.parent)
-    flags = os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW | (os.O_EXCL if exclusive else os.O_TRUNC)
+    serialized = json.dumps(value, indent=2, allow_nan=False) + '\n'
+    flags = os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK | (os.O_EXCL if exclusive else 0)
     fd = os.open(path, flags, 384)
     with os.fdopen(fd, 'w', encoding='utf-8') as stream:
         transport._private_stat(os.fstat(stream.fileno()))
-        json.dump(value, stream, indent=2, allow_nan=False)
-        stream.write('\n')
+        os.ftruncate(stream.fileno(), 0)
+        stream.write(serialized)
         stream.flush()
         os.fsync(stream.fileno())
 

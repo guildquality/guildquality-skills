@@ -1,15 +1,15 @@
 {
   "files": {
-    "SKILL.md": "d29c862c5f46e57aea291507caaa732782012b72eeec718bcda6a9bd56353290",
-    "references/analysis.md": "bba98f260327e85158164c24635eef9c129d5cd51a42927a846941b0b7dd8d5b",
-    "references/api.md": "4881fc539759f0e7b4c0dca9759c768c464fbeb0f8f905e136a1d4d9ecfcfb1f",
-    "references/authentication.md": "b6b55cb6ab3f5bb2cdcc097e7cdb172676a5e9f507c1e4bc9abdfa5ee5093f18",
-    "scripts/gq_analysis.py": "6a34656436fd0a2fff9274a712faafd765da598f4d6586836716372f2898b33b",
-    "scripts/gq_api.py": "7e72e3eaf400bdc91b052093e5722a589deaf1ff87fa4bf66358da7aa4789910",
-    "scripts/gq_connect.py": "d35ff8104129c64459ff059ca5c74f2dd1df3d8c17935796af9b1a1d5d61d90d",
-    "scripts/gq_transport.py": "4c6711d17f72557002c7c3167c8a130cba4d42aef67096632c152f402b81bf7f"
+    "SKILL.md": "690570f140bed9719945d5c88a80033ec9f7b523d85b3644e2c6ab3398b31266",
+    "references/analysis.md": "8e15fa5de95067a5472c4280e9d42f043bade86876a2146bc8a7fe7ba0332269",
+    "references/api.md": "ae95bf80599e12342dce96a2d1f37d5a655ae6c2bf6aaff1c8396f6e35c3597f",
+    "references/authentication.md": "46fae6bf695acee975142de5f6adfa5f04c742aa7fb46ae45a92e05cc855623e",
+    "scripts/gq_analysis.py": "d6162d27baad5fbb7902e5c039f3485e02b3949b35d559566a38401a07769e27",
+    "scripts/gq_api.py": "14d3e1a7b617c954170583abb0225c3ced16fc558659cbc55ee50ab4018f1118",
+    "scripts/gq_connect.py": "75e9a060c045d6fd893c4df5fa641c22ee06461a2e2c259cd91bfcfcc1c7f8af",
+    "scripts/gq_transport.py": "d1cb97038ce46a593d69d86c1dd9a4899f2fbbb290f196048a99e874c36bbb87"
   },
   "schema_version": 1,
   "skill": "guildquality-analyze-feedback",
-  "version": "0.2.8-beta.1"
+  "version": "0.2.8-beta.2"
 }

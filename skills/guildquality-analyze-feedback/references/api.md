@@ -2,7 +2,7 @@
 
 Checked 2026-10-28 against the public [Postman reference](https://documenter.getpostman.com/view/2124402/TVRecqCj) and current backend route/controller source. This is a curated guide. Consult current Postman documentation before using additional fields or operations; do not send credentials to documentation URLs.
 
-Production base URL: `https://www.guildquality.com/company-api/v3`. The helper requires a selected approved environment manifest, account binding, and separate private credential reference; staging does not inherit this production destination. Never infer an origin from a token or fall back after failure. Use Bearer authentication and `Accept: application/json`. JSON writes use `Content-Type: application/json`.
+Production base URL: `https://www.guildquality.com/company-api/v3`. The helper requires a selected approved environment manifest, account binding, and separate private credential reference; staging does not inherit this production destination. Never infer an origin from a token or fall back after failure. Use Bearer authentication and `Accept: application/json`.
 
 ## Reads
 
@@ -14,9 +14,8 @@ Production base URL: `https://www.guildquality.com/company-api/v3`. The helper r
 | `/children` | Accessible direct related-company records with `id`, `name` and `createdAt`; not a verified recursive hierarchy, root identity, physical-branch map or role/permission contract |
 | `/reports` | Non-private saved reports; excludes default All Customer/Lead Surveys |
 | `/team`, `/custom-fields`, `/project-user-roles` | Reference data for interpreting and preparing requests |
-| `/survey-templates` | Can initialize default templates internally on first access. The candidate permits it only in action mode with explicit `template_initialization_authorized: true`; never use as a no-change connection probe. Without that authorization, ask for verified template information or report the limitation. |
+| `/survey-templates` | Can initialize default templates on first access. Blocked by the reporting helper; use administrator-supplied template information instead. Never use it as a connection probe. |
 | `/review-summary` | Child/affiliate summary, including question satisfaction percentages and completed-survey counts; not a universal root-account metrics endpoint |
-| `/surveys/deleted` | `since`, `until`; deleted surveys billed to the authenticated company |
 | `/contacts/opt-in-status` | Requires `contactEmails` or a documented date filter using `since`/`until` |
 
 Dates use **`YYYY-MM-DD`**. Survey date fields are `endedAt` (default filter), `sendAt` (default ordering), `createdAt`, `updatedAt`, and `lastActivityAt`. Review date fields are `reviewedAt` (default) and `lastActivityAt`. Confirm timezone and boundary behavior before claiming exact end-of-day coverage.
@@ -53,8 +52,8 @@ The helper rejects response-label forms such as `status=Completed`, unknown grou
 Survey/review lists default to 50 records per page. Omit `limit` when completeness matters: that parameter disables pagination. Follow `links.next`, validating every URL before forwarding the credential. A null next link establishes the end of that paginated query, not access to all account data. If the API returns no pagination metadata, inspect the endpoint contract; do not assume completeness.
 
 ```sh
-python3 scripts/gq_api.py --manifest /private/path/environments.json --environment staging-id get '/reports'
-python3 scripts/gq_api.py --manifest /private/path/environments.json --environment staging-id get '/surveys?questions=1&since=2026-09-01&until=2026-09-30&dateFilter=endedAt&isImported[]=0' --all-pages
+python3 scripts/gq_connect.py --profile "$HOME/.config/guildquality/customer/connection.json" get '/reports'
+python3 scripts/gq_connect.py --profile "$HOME/.config/guildquality/customer/connection.json" get '/surveys?questions=1&since=2026-09-01&until=2026-09-30&dateFilter=endedAt&isImported[]=0' --all-pages
 ```
 
 The helper returns `pages_fetched`, `pagination_complete`, `stop_reason`, and `data`. Check these and the process exit status. `pagination_complete: null` means no recognized paging metadata; `false` means unfinished paging. Partial data remains available when a later page fails, but is not a complete report.

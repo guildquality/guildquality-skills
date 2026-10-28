@@ -1,22 +1,24 @@
 # GuildQuality Skills
 
-Analyze GuildQuality customer feedback with your AI assistant. Compare periods and locations, calculate scores, and explore customer comments with examples from your data.
+Ask your AI assistant about GuildQuality customer feedback. Compare months and locations, check scores, and find common themes in customer comments.
 
-**Current release: 0.2.8-beta.1.** This beta includes the **Analyze Feedback** skill for reporting with a survey export or a private GuildQuality API connection.
+**Current release: 0.2.8-beta.2.** This beta includes **Analyze Feedback**. Use it with a survey export or connect it to your GuildQuality account.
 
-**[Download GuildQuality Skills (beta)](https://github.com/guildquality/guildquality-skills/releases/download/v0.2.8-beta.1/guildquality-analyze-feedback.zip)**
+**[Download GuildQuality Skills (beta)](https://github.com/guildquality/guildquality-skills/releases/download/v0.2.8-beta.2/guildquality-analyze-feedback.zip)**
 
-Follow [Getting Started](GETTING_STARTED.md) to add the skill and connect your account. Then try the [example questions](EXAMPLES.md) and read [Using GuildQuality Skills](USAGE.md) for guidance on comparisons, larger accounts, and reliable reports.
+Follow [Getting Started](GETTING_STARTED.md) to add the skill and connect your account. Try the [example questions](EXAMPLES.md), then read [Using GuildQuality Skills](USAGE.md) for tips on clear, useful reports.
 
 ## What to install
 
-Download and unzip **`guildquality-analyze-feedback.zip`**, then keep the complete skill folder together. It contains the instructions, references, and Python helpers the assistant needs. The beta reads feedback and prepares reports; it does not change your account or send messages.
+Download and unzip **`guildquality-analyze-feedback.zip`**. Keep the whole skill folder together. It holds the instructions, reference notes, and Python tools the assistant needs. The beta reads feedback and writes reports. It does not change your account or send messages.
 
-The other files in this repository support setup and use:
+The other files in this repository help you set up and use the skill:
 
 - `GETTING_STARTED.md`, `EXAMPLES.md`, and `USAGE.md`: guides to read, not files to install.
-- `examples/synthetic-feedback.json`: fictional feedback for trying a report without an API key.
-- `skills/guildquality-analyze-feedback/`: the same skill files unpacked for browsing.
-- `release.json` and `checksums.sha256`: version information and optional download verification. The checksum file is not part of the installed skill.
+- `examples/synthetic-feedback.json`: made-up feedback to try without an API key.
+- `skills/guildquality-analyze-feedback/`: the same skill files, unpacked so you can browse them.
+- `release.json` and `checksums.sha256`: version details and optional checks that the download matches the release. The checksum file is not part of the installed skill.
 
-Use your company's approved AI workspace. Keep your API key and saved connection outside the skill folder and chat. Your GuildQuality representative can help with setup, account scope, or a report you want to check.
+Share only feedback your company allows you to send to your chosen AI service. Keep your API key and saved connection outside the skill folder and chat.
+
+For setup or report help, [contact GuildQuality Support](https://help.guildquality.com/gq3/get-support-live-chat/) or email [support@guildquality.com](mailto:support@guildquality.com). For a security concern, email Support; do not post API keys or customer feedback in a public issue.

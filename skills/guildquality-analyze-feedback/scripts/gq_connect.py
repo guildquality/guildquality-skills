@@ -32,6 +32,8 @@ def profile_path(value):
     installed = Path(__file__).resolve().parent.parent
     if path == installed or installed in path.parents:
         raise ClientError("Keep the connection profile outside the installed skill.")
+    if any(os.path.lexists(parent / ".git") for parent in path.parents):
+        raise ClientError("Keep the connection profile outside Git repositories so credentials are not committed.")
     if path.name in ("token", "environment.json", "state"):
         raise ClientError("Choose a separate profile filename, such as connection.json.")
     return path

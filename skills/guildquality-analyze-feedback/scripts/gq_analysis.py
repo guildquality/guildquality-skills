@@ -67,10 +67,18 @@ def calculate(rows, metric="nps", question_id=None, since=None, until=None,
     base = {"import_policy": policy, "metric": metric, "since": since, "until": until, "timezone": timezone,
             "input_complete": complete is True, "retrieved_rows": len(rows),
             "coverage_basis": "Selected retrieved records; completeness applies only to their source queries."}
+    def apply_import_policy(selected):
+        unknown = sum(type(row.get("isImported")) is not bool for row in selected)
+        if exclude_imported and unknown:
+            raise CalculationError("Selected surveys need explicit boolean isImported values to exclude imported responses. Supply that field or explicitly include all selected surveys.")
+        base["import_status_unknown_count"] = unknown
+        if unknown:
+            base["import_policy"] = "include all selected surveys; import status is unknown for some records"
+        return [row for row in selected if not exclude_imported or row["isImported"] is False]
     if metric == "response-rate":
-        cohort = [r for r in rows if (not exclude_imported or not r.get("isImported"))
-                  and str(r.get("status", "")).lower().replace(" ", "-") in ("in-progress", "completed", "abandoned", "no-response")
-                  and in_period(r.get("sendAt"))]
+        cohort = apply_import_policy([r for r in rows
+                  if str(r.get("status", "")).lower().replace(" ", "-") in ("in-progress", "completed", "abandoned", "no-response")
+                  and in_period(r.get("sendAt"))])
         completed = [r for r in cohort if str(r.get("status", "")).lower() == "completed"
                      and local_day(r.get("endedAt"), timezone) is not None
                      and local_day(r["endedAt"], timezone) <= upper]
@@ -78,10 +86,10 @@ def calculate(rows, metric="nps", question_id=None, since=None, until=None,
                     response_rate=100 * len(completed) / len(cohort) if cohort else None,
                     cohort_source_ids=sorted(r["id"] for r in cohort),
                     completed_source_ids=sorted(r["id"] for r in completed),
-                    observation_cutoff=until, import_policy=policy)
+                    observation_cutoff=until)
         return base
-    completed = [r for r in rows if str(r.get("status", "")).lower() == "completed"
-                 and (not exclude_imported or not r.get("isImported")) and in_period(r.get("endedAt"))]
+    completed = apply_import_policy([r for r in rows if str(r.get("status", "")).lower() == "completed"
+                                    and in_period(r.get("endedAt"))])
     if metric == "count":
         base.update(completed_count=len(completed), source_ids=sorted(r["id"] for r in completed))
         return base
@@ -101,7 +109,7 @@ def calculate(rows, metric="nps", question_id=None, since=None, until=None,
                 n=len(values), promoters=promoters, passives=len(values)-promoters-detractors,
                 detractors=detractors, source_ids=sorted(i for i, _ in values),
                 excluded_completed_count=len(completed)-len(values),
-                import_policy=policy, question_id=question_id)
+                question_id=question_id)
     return base
 
 
@@ -124,6 +132,10 @@ def main():
                            isinstance(payload, dict) and payload.get("pagination_complete") is True, exclude_imported=not args.include_imported)
         print(json.dumps(result, allow_nan=False))
         return 0
+    except CalculationError as error:
+        # CalculationError messages are controlled diagnostics, never source text.
+        print(json.dumps({"error": str(error)}))
+        return 2
     except (OSError, ValueError, TypeError, KeyError):
         print(json.dumps({"error": "Calculation refused: check record shape, dates, timezone and verified question scale."}))
         return 2
