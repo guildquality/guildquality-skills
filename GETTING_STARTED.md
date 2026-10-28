@@ -1,4 +1,4 @@
-# Get started with GuildQuality Skills
+# AI Skills
 
 GuildQuality Skills helps your AI assistant compare feedback, check scores, and find themes in customer comments. This beta includes **Analyze Feedback**. Use it with a survey export or connect it to your GuildQuality account.
 
@@ -14,7 +14,7 @@ You can start with a survey export, which needs no API key. To connect your acco
 
 The beta reads feedback and writes reports. It does not send surveys, publish replies, or change your account.
 
-## 1. Install the skill once
+## 1. Install the skill
 
 Choose the app you use. Keep the whole skill folder together, including its scripts, reference notes, and license.
 
