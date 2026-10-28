@@ -10,7 +10,7 @@ Read [Using GuildQuality Skills](USAGE.md) to install the skill, connect your ac
 
 ## What to install
 
-Download **`guildquality-analyze-feedback.zip`** and install it using your app's skill setup. Keep the whole skill folder together. It holds the instructions, reference notes, license, and Python tools the assistant needs. Once installed, select it in a normal chat or project. Keep your exports and reports in a separate private folder. The beta reads feedback and writes reports. It does not change your account or send messages.
+Download **`guildquality-analyze-feedback.zip`** using the link above and install it using your app's skill setup. Keep the whole skill folder together. It holds the instructions, reference notes, license, and Python tools the assistant needs. Once installed, select it in a normal chat or project. Keep your exports and reports in a separate private folder. The beta reads feedback and writes reports. It does not change your account or send messages.
 
 The other files in this repository help you set up and use the skill:
 
@@ -18,7 +18,6 @@ The other files in this repository help you set up and use the skill:
 - `EXAMPLES.md`: questions to try. These guides are for reading, not installation.
 - `examples/synthetic-feedback.json`: made-up feedback to try without an API key.
 - `skills/guildquality-analyze-feedback/`: the same skill files, unpacked so you can browse them.
-- `release.json` and `checksums.sha256`: version details and optional checks that the download matches the release. The checksum file is not part of the installed skill.
 
 The package is available under the [MIT License](LICENSE). You may use, change, and share it under those terms.
 

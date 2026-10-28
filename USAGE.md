@@ -4,7 +4,7 @@ GuildQuality Skills helps your AI assistant compare feedback, check scores, and 
 
 <p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.2.8-beta.3/guildquality-analyze-feedback.zip">Download GuildQuality Skills (beta)</a></p>
 
-The download holds the whole skill folder. The optional checksum file checks that it matches the release. You do not need to install the checksum file.
+The download holds the whole skill folder. The [release page](https://github.com/guildquality/guildquality-skills/releases/tag/v0.2.8-beta.3) also offers an optional checksum to check the ZIP.
 
 ## Before you begin
 
