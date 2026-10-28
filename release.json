@@ -12,7 +12,7 @@
     "scripts/gq_connect.py",
     "scripts/gq_transport.py"
   ],
-  "guide_sha256": "1244ca37aabea01c32c10c1da9e83ced6fe11423c7547ed0430222a20f44698c",
+  "guide_sha256": "bfe57045d472fd70277b49cf120e1a8eb9d4d87309e94611207f224f7736262c",
   "license": "MIT",
   "license_file": "LICENSE",
   "license_sha256": "d33791e4cea4b8cc71eace2e10cbc61ba7f89318ad8e633b03a05d2c3ac5d140",
