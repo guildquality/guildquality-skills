@@ -1,6 +1,6 @@
 # Questions to try
 
-Start with the made-up export in `examples/synthetic-feedback.json`. No API connection is needed:
+Select the installed GuildQuality Analyze Feedback skill in a normal chat or project. Add the made-up export from this repository, `examples/synthetic-feedback.json`, to try it without an API connection. Keep local analysis files in your own private reports folder:
 
 > Use the GuildQuality feedback-analysis skill with this sample file. For September 2026, calculate Net Promoter Score (NPS) for recommendation question 1 on its stated 0–10 scale. Show how many responses were used and the promoter, passive, and detractor counts. Use the America/New_York time zone and state which records the answer covers.
 

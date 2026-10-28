@@ -6,7 +6,9 @@ Use GuildQuality Skills to compare feedback over time, check results across simi
 
 **Use an export** to ask about a supplied file without an API connection. The made-up example is a good place to start.
 
-**Connect GuildQuality** to read fresh feedback from your approved account. Use ChatGPT desktop with the whole skill folder, command tools, Python 3.9+ with time zone data, and permission to connect. Private setup has been checked on macOS. Ask GuildQuality to confirm the setup for another system or a hosted chat.
+**Connect GuildQuality** to read fresh feedback from your approved account. Use the installed skill in ChatGPT desktop with local files, command tools, Python 3.9+ with time zone data, and permission to connect. Private setup has been checked on macOS. Ask GuildQuality to confirm the setup for another system or a hosted chat.
+
+Install the skill once using [Getting Started](GETTING_STARTED.md), then select it in your normal analysis chat or project. Keep local exports and reports in a separate private folder outside the installed skill and Git repositories. A hosted chat does not gain access to your laptop's saved connection through installation.
 
 The beta reads feedback and writes reports. Use the GuildQuality app to send surveys, import customers, or publish review replies. Share only feedback your company allows you to send to your chosen AI service.
 

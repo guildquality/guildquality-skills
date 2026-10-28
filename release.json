@@ -1,6 +1,7 @@
 {
   "audience": "customers",
   "customer_runtime_files": [
+    "LICENSE",
     "SKILL.md",
     "manifest.json",
     "references/analysis.md",
@@ -11,16 +12,19 @@
     "scripts/gq_connect.py",
     "scripts/gq_transport.py"
   ],
-  "guide_sha256": "c8157fecc828a9e4433807295796b596083301e02c82f57ccafd1a014a990cab",
+  "guide_sha256": "4fadc38e92d9dbf1b0bbff974f9a013bff09d23f991d5dada108804754e1a7d0",
+  "license": "MIT",
+  "license_file": "LICENSE",
+  "license_sha256": "d33791e4cea4b8cc71eace2e10cbc61ba7f89318ad8e633b03a05d2c3ac5d140",
   "package": {
     "file": "downloads/guildquality-analyze-feedback.zip",
-    "file_count": 9,
-    "sha256": "12a03854f693b118f5f7b0d02bb5715b8656caa486e41a91e0dda6e30d312da0"
+    "file_count": 10,
+    "sha256": "2c4ff545c604f2ea5006b0fb1ad4428b8a4fb9741fea24c4b268d7401e2038a1"
   },
   "production_mutations_supported": false,
   "release_stage": "beta",
   "schema_version": 1,
-  "version": "0.2.8-beta.2",
+  "version": "0.2.8-beta.3",
   "workflows": [
     "guildquality-analyze-feedback"
   ]

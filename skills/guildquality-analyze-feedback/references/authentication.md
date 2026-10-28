@@ -1,6 +1,6 @@
 # Connect GuildQuality privately
 
-Use one explicit private connection profile for the selected account and environment. A skill ZIP contains instructions and code, not a connection or secret store. Never put an API key in a skill, ZIP, chat, prompt, attachment, screenshot, or command argument. The Company API key can write within its server-granted scope; selecting a reporting skill does not reduce that server authority.
+Use one explicit private connection profile for the selected account and environment. Install the complete skill through the client's supported Skills manager or personal skill directory; attaching a ZIP in ordinary chat does not establish persistent installation. Installation, analysis workspace, and saved connection are separate. A skill ZIP contains instructions and code, not a connection or secret store. Never put an API key in a skill, ZIP, chat, prompt, attachment, screenshot, or command argument. The Company API key can write within its server-granted scope; selecting a reporting skill does not reduce that server authority.
 
 ## Start with the actual client
 
@@ -14,18 +14,24 @@ An `.env` file is useful only when the selected runtime already has an explicit 
 
 ## Customer setup: one explicit profile
 
-Commands below run from the installed skill folder. Use a dedicated private directory outside the installed skill and repository, with one account/environment per directory. The examples contain no key; replace account/scope/origin with explicitly approved values, never inferred from the key.
+Resolve the installed skill directory from this client's actual skill registration. Keep the working directory in the user's private analysis workspace; do not use the installed skill folder for exports or reports. In the commands below, set `gq_skill_dir` to that verified absolute install path, for example:
+
+```sh
+gq_skill_dir="/absolute/path/to/installed/guildquality-analyze-feedback"
+```
+
+Invoke the packaged helper by that path. Use a dedicated private directory outside the installed skill and repository, with one account/environment per directory. The examples contain no key; replace account/scope/origin with explicitly approved values, never inferred from the key.
 
 First inspect the selected profile without contacting the API:
 
 ```sh
-python3 scripts/gq_connect.py --profile "$HOME/.config/guildquality/customer/connection.json" status
+python3 "$gq_skill_dir/scripts/gq_connect.py" --profile "$HOME/.config/guildquality/customer/connection.json" status
 ```
 
 If it is not configured, prepare this command for the user to run in their **own private interactive terminal**:
 
 ```sh
-python3 scripts/gq_connect.py --profile "$HOME/.config/guildquality/customer/connection.json" setup --kind production --account-id ACCOUNT_ID --company-ids ROOT_ID,CHILD_ID
+python3 "$gq_skill_dir/scripts/gq_connect.py" --profile "$HOME/.config/guildquality/customer/connection.json" setup --kind production --account-id ACCOUNT_ID --company-ids ROOT_ID,CHILD_ID
 ```
 
 Production explicitly uses `--kind production` and the fixed `https://www.guildquality.com` origin. A separately approved staging setup uses `--kind staging --origin EXACT_APPROVED_STAGING_ORIGIN`. Include the selected root in the explicit company-ID list. Use only approved company IDs; token reach does not itself grant task scope. Never choose production as fallback after staging fails.
@@ -37,7 +43,7 @@ Setup reads the account's accessible saved reports and asks the user to select a
 Then check current connectivity without entering the key again:
 
 ```sh
-python3 scripts/gq_connect.py --profile "$HOME/.config/guildquality/customer/connection.json" preflight
+python3 "$gq_skill_dir/scripts/gq_connect.py" --profile "$HOME/.config/guildquality/customer/connection.json" preflight
 ```
 
 `preflight` reads `/reports` and verifies the exact selected ID/name. To select or correct a marker on an existing profile, use its private terminal selection or pass the two marker arguments together. HTTP 200 alone does not establish an account, marker, or usable reporting data. Inspect the result before claiming setup succeeded.
@@ -45,7 +51,7 @@ python3 scripts/gq_connect.py --profile "$HOME/.config/guildquality/customer/con
 After successful preflight, use the reporting-only interface, for example:
 
 ```sh
-python3 scripts/gq_connect.py --profile "$HOME/.config/guildquality/customer/connection.json" get '/surveys?questions=1&since=2026-09-01&until=2026-09-30&dateFilter=endedAt&isImported[]=0' --all-pages
+python3 "$gq_skill_dir/scripts/gq_connect.py" --profile "$HOME/.config/guildquality/customer/connection.json" get '/surveys?questions=1&since=2026-09-01&until=2026-09-30&dateFilter=endedAt&isImported[]=0' --all-pages
 ```
 
 The customer connector exposes setup, status, preflight, and GET reporting; it does not grant action execution. Read [API behavior](api.md) for cohort and pagination constraints. An approved file-only analysis does not need a live connection.
@@ -71,7 +77,7 @@ Some single-account survey responses omit per-record company fields. The helper 
 After the existing reporting connection is configured, apply the administrator-supplied file explicitly:
 
 ```sh
-python3 scripts/gq_connect.py --profile "$HOME/.config/guildquality/customer/connection.json" bind-single-account --evidence-file /private/path/admin-account-binding.json
+python3 "$gq_skill_dir/scripts/gq_connect.py" --profile "$HOME/.config/guildquality/customer/connection.json" bind-single-account --evidence-file /private/path/admin-account-binding.json
 ```
 
 This permits survey-only inference only for an exact one-root scope, fresh matching root-owned report marker and fresh complete empty children response. Each survey task checks again. The output labels the attributed account, evidence basis and affected source IDs without rewriting server fields. Keep that attribution visible in the answer. Explicit conflicting or ambiguous ownership still fails; ownerless review records do not receive this fallback. The binding is trusted administrator input, not a cryptographic identity service or an expansion of the API key's permissions.

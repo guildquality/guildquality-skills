@@ -1,15 +1,18 @@
 {
   "files": {
-    "SKILL.md": "690570f140bed9719945d5c88a80033ec9f7b523d85b3644e2c6ab3398b31266",
+    "LICENSE": "d33791e4cea4b8cc71eace2e10cbc61ba7f89318ad8e633b03a05d2c3ac5d140",
+    "SKILL.md": "94d5e9e0941616e82e11bd8fb51a14c3e05a2c3c430eb551f74c959e4cd51090",
     "references/analysis.md": "8e15fa5de95067a5472c4280e9d42f043bade86876a2146bc8a7fe7ba0332269",
     "references/api.md": "ae95bf80599e12342dce96a2d1f37d5a655ae6c2bf6aaff1c8396f6e35c3597f",
-    "references/authentication.md": "46fae6bf695acee975142de5f6adfa5f04c742aa7fb46ae45a92e05cc855623e",
+    "references/authentication.md": "c11885c31d799346e086dd8b2e44ecb3d30c25bc26732917db2f4ca3c7e1bf76",
     "scripts/gq_analysis.py": "d6162d27baad5fbb7902e5c039f3485e02b3949b35d559566a38401a07769e27",
-    "scripts/gq_api.py": "14d3e1a7b617c954170583abb0225c3ced16fc558659cbc55ee50ab4018f1118",
+    "scripts/gq_api.py": "728a969ecbcf6247a1140fa887b7bd3fdfcf50e6b387a61d94505bc3d1e0d787",
     "scripts/gq_connect.py": "75e9a060c045d6fd893c4df5fa641c22ee06461a2e2c259cd91bfcfcc1c7f8af",
     "scripts/gq_transport.py": "d1cb97038ce46a593d69d86c1dd9a4899f2fbbb290f196048a99e874c36bbb87"
   },
+  "license": "MIT",
+  "license_file": "LICENSE",
   "schema_version": 1,
   "skill": "guildquality-analyze-feedback",
-  "version": "0.2.8-beta.2"
+  "version": "0.2.8-beta.3"
 }
