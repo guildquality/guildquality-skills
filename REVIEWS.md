@@ -2,15 +2,15 @@
 
 Draft thoughtful review replies in ChatGPT or Claude. Connect your account to find reviews and post approved responses on your **GuildQuality profile**, or start with a review you paste or upload for a draft.
 
-## Install the skill
+## Install GuildQuality Skills
 
-**[Download Respond to Reviews (beta)](https://github.com/guildquality/guildquality-skills/releases/download/v0.3.0-beta.2/gq-respond-to-reviews.zip)**
+Respond to Reviews is included in the **GuildQuality Skills** collection with Analyze Feedback.
 
-Install the complete `gq-respond-to-reviews.zip` using your app's Skills screen. In ChatGPT, choose **Add → Upload from your computer**. In Claude, choose **Customize → Skills → Add → Upload skill** and enable it.
+**[Get GuildQuality Skills (beta)](USAGE.md#1-install-guildquality-skills)**
 
-Already installed? Use the new ZIP to update the skill in your app's Skills screen. Update Analyze Feedback too if you use both.
+Follow [Using GuildQuality Skills](USAGE.md#1-install-guildquality-skills) to install or update the complete collection. You do not need a separate review-skill download.
 
-Start a new chat and select the skill, or ask to use **GuildQuality Respond to Reviews**. Keep customer files and saved connections in a separate private folder.
+Start a new chat with GuildQuality Skills and ask to use **GuildQuality Respond to Reviews**. Keep customer files and saved connections in a separate private folder.
 
 ## Connect to find GuildQuality reviews
 

@@ -1,34 +1,32 @@
 # Using GuildQuality Skills
 
-Use GuildQuality Skills in ChatGPT or Claude to understand customer feedback and write thoughtful review replies. This beta includes **Analyze Feedback** and **Respond to Reviews**. Respond to Reviews drafts replies for any channel and posts approved responses on your **GuildQuality profile**.
+Install GuildQuality Skills in ChatGPT or Claude to understand customer feedback and write thoughtful review replies. This beta collection includes **Analyze Feedback** and **Respond to Profile Reviews**. The review skill drafts wording for any channel and posts approved responses on your **GuildQuality profile**.
 
 Connect your GuildQuality account for fresh feedback, or upload an export to get started with a file. Use your company's approved AI workspace and share only data your company allows.
 
-Choose the skill you need, or install both. Each download is a separate skill.
+## 1. Install GuildQuality Skills
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.3.0-beta.2/gq-analyze-feedback.zip">Download Analyze Feedback (beta)</a></p>
+Choose your AI app below. Each download is the complete collection and includes both available skills.
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.3.0-beta.2/gq-respond-to-reviews.zip">Download Respond to Reviews (beta)</a></p>
+<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.1/guildquality-skills-chatgpt.zip">Download for ChatGPT (beta)</a></p>
 
-## 1. Install the skill
+<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.1/guildquality-skills-claude.plugin">Download for Claude (beta)</a></p>
 
-Download a ZIP above. Use your app's Skills screen to install it with all its files. Repeat for the other skill if you want both.
+Upload the downloaded package without unpacking it.
 
-**ChatGPT:** open [Skills](https://chatgpt.com/skills), choose **Add → Upload from your computer**, and select the ZIP. Confirm that **gq-analyze-feedback** or **gq-respond-to-reviews** appears under Installed. In a new chat, type **@** and select it.
+**ChatGPT:** open [Plugins](https://chatgpt.com/plugins), choose **Add → Upload plugin archive**, and select the ChatGPT ZIP. Choose **Add plugin**, then **Install plugin**.
 
-**Claude / Cowork:** open **Customize → Skills → Add → Upload skill**, select the ZIP, and enable the skill. Older layouts use **+ → Create skill → Upload a skill**. Enable **Create and edit files** or **Code execution and file creation** in Settings if asked. This lets Claude analyze files; it does not mean you need Claude Code.
+**Claude / Cowork:** open **Customize → Plugins → Add plugin → Upload plugin**. Select the Claude package and choose **Upload**. The collection is enabled when installation finishes.
 
-Already installed? Use the new ZIPs to update both skills in your app's Skills screen. This keeps the analysis and reply guidance working together.
-
-If the upload option is missing, update your app and check with your workspace administrator or GuildQuality Support. Availability depends on your plan and workspace settings. Attaching the ZIP to a chat does not install it for future chats.
+If a plugin option is missing, update your app and check with your workspace administrator or GuildQuality Support. Availability depends on your plan and workspace settings. Attaching the package to a chat does not install it for future chats.
 
 ## 2. Add your GuildQuality data
 
-Start a new chat and select **GuildQuality Analyze Feedback** or **GuildQuality Respond to Reviews**. Choose one of these two ways to add your data.
+Start a new chat with **GuildQuality Skills**. Choose one of these two ways to add your data.
 
 ### Connect your account — recommended for fresh feedback
 
-An API connection lets the assistant read fresh feedback without downloading a new export each time. Respond to Reviews can also post replies you approve on your GuildQuality profile. Both skills can use the same saved connection in the same environment.
+An API connection lets the assistant read fresh feedback without downloading a new export each time. Respond to Reviews can also post replies you approve on your GuildQuality profile. Both workflows can use the same saved connection when it is available in their environment.
 
 1. Open your [GuildQuality API settings](https://www.guildquality.com/company/manage/account/api). Sign in if asked, and check that you are in the account you want to use.
 2. Turn **API** to **On**. Use the existing **API token**, or choose **Generate** if there isn't one. If you cannot change these settings, ask your GuildQuality administrator for help. Avoid **Regenerate**: it replaces the token used by any existing integrations.
@@ -42,13 +40,13 @@ The assistant needs network access and a private place to save the token. Follow
 
 Connection options depend on your AI app and workspace settings. If your chat cannot connect, use an export below. You can also copy a drafted reply into GuildQuality to publish it yourself.
 
-After setup, a fresh chat can check and reuse the saved connection. You should not need to reinstall the skill or enter the token again in that environment. Installing the skill elsewhere does not transfer the connection.
+After setup, a fresh chat can check and reuse the saved connection. You should not need to reinstall the skill or enter the token again in that environment. Installing the collection in another app does not transfer the connection.
 
 ### Or upload an export — a simple way to start
 
 Upload an approved GuildQuality export, such as a CSV or spreadsheet. To draft a reply, you can also paste the review into chat. No API token or connection setup is needed for these options.
 
-The assistant analyzes the records in that file. Upload a new export when you want newer results. Keep local exports and reports in a private folder, separate from the installed skill.
+The assistant analyzes the records in that file. Upload a new export when you want newer results. Keep local exports and reports in a private folder, separate from the installed collection.
 
 ## 3. Ask for what you need
 
@@ -78,10 +76,22 @@ For Google or another review site, post the draft through that site's tools. For
 
 For more detail, read [Using GuildQuality Respond to Reviews](https://github.com/guildquality/guildquality-skills/blob/main/REVIEWS.md).
 
+## Update GuildQuality Skills
+
+Download the latest package for your app from the buttons above.
+
+**ChatGPT:** open GuildQuality Skills in **Plugins**. Choose **More actions → Upload new version** and select the new ZIP.
+
+**Claude / Cowork:** use **Customize → Plugins → Add plugin → Upload plugin** to upload the latest Claude package. Choose **Replace** when asked to replace GuildQuality Skills.
+
+Update the collection to get the latest versions of both included skills.
+
+If you installed the earlier separate GuildQuality skills, first confirm the collection is installed and both workflows work. Then you can remove the old standalone copies from your app's Skills screen to avoid duplicates. Keep your saved API connection in its separate private folder.
+
 ## Get help
 
 [Contact GuildQuality Support](https://help.guildquality.com/gq3/get-support-live-chat/) or email [support@guildquality.com](mailto:support@guildquality.com). Share your app, operating system, release version, question, and error message. Remove API tokens, private connection files, and customer contact details.
 
 Use the GuildQuality app to send surveys or import customers. Codex and Claude Code are also options for people who prefer coding tools; they are not required to analyze files or draft replies.
 
-Updating or removing the skill does not remove its separate connection or revoke the API token. Ask your administrator before changing a token used by other tools.
+Updating or removing the collection does not revoke your GuildQuality API token. Keep the separate saved connection in its private folder. Ask your administrator before changing a token used by other tools.

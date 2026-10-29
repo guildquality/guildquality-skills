@@ -1,8 +1,12 @@
 # GuildQuality Skills
 
-Use your GuildQuality feedback with your AI assistant to understand trends, find what needs attention, and write thoughtful review replies. Connect your account for fresh feedback, or start with an approved export or a review you paste into chat.
+Use your GuildQuality feedback with your AI assistant to understand trends, find what needs attention, and write thoughtful review replies. GuildQuality Skills is one collection with **Analyze Feedback** and **Respond to Profile Reviews**.
 
-Read [Using GuildQuality Skills](USAGE.md) to install a skill and connect your account. You can install either skill or both.
+**[Get GuildQuality Skills (beta)](USAGE.md#1-install-guildquality-skills)**
+
+**Current release: 0.4.0-beta.1.**
+
+Choose the package for ChatGPT or Claude. Each package includes both available workflows. Read [Using GuildQuality Skills](USAGE.md) to install the collection and connect your account, or start with an approved export or a review you paste into chat.
 
 ## Explore the skills
 
@@ -16,18 +20,13 @@ Read [Using GuildQuality Skills](USAGE.md) to install a skill and connect your a
 | **Manage Locations** | Add locations and manage their settings. | Coming soon |
 | **Manage Users** | Add team members and manage their access. | Coming soon |
 
-## Download and install
+## Install and update the collection
 
-- **[Download Analyze Feedback](https://github.com/guildquality/guildquality-skills/releases/download/v0.3.0-beta.2/gq-analyze-feedback.zip)** · 0.2.8-beta.5
-- **[Download Respond to Profile Reviews](https://github.com/guildquality/guildquality-skills/releases/download/v0.3.0-beta.2/gq-respond-to-reviews.zip)** · 0.3.0-beta.2
+Install **GuildQuality Skills** through your app's Plugins screen. Update the collection to get the latest versions of all included skills. You do not need separate skill downloads.
 
-The profile-review skill is the existing **GuildQuality Respond to Reviews** download.
+Keep customer files and saved connections in a separate private folder. Both workflows can use the same saved GuildQuality connection when it is available in their environment. Installing the collection in another app does not transfer the connection.
 
-Use your app's Skills screen to install each ZIP with all its files. Keep the skill folder together: it holds the instructions, reference notes, license, and Python tools the assistant needs. Select the skill in a chat, and keep customer files and saved connections in a separate private folder.
-
-Analyze Feedback reads feedback and creates reports. Respond to Reviews drafts replies for any channel. With a working API connection, it can post, replace, or remove a response on your **GuildQuality profile** after you approve the specific change. To send a private email or text, make a call, or reply on Google, use that channel's own tools. The skills can share an existing saved connection in the same environment.
-
-Already installed? Use the new ZIPs to update both skills in your app's Skills screen. This keeps the analysis and reply guidance working together.
+Analyze Feedback reads feedback and creates reports. Respond to Reviews drafts wording for any channel. With a working API connection, it can post, replace, or remove a response on your **GuildQuality profile** after you approve the specific change. To send a private email or text, make a call, or reply on Google, use that channel's own tools.
 
 ## Get started
 
@@ -35,10 +34,10 @@ Already installed? Use the new ZIPs to update both skills in your app's Skills s
 - [Replying to profile reviews](REVIEWS.md): drafting and approving replies.
 - [Example questions](EXAMPLES.md): business questions to try with your own feedback.
 
-These guides are for reading. Install the ZIPs above; the `skills/` folders show the same skill files unpacked for browsing.
+These guides are for reading. Install the collection package from the release; the `skills/` folders show its workflows unpacked for browsing.
 
-The skills are available under the [MIT License](LICENSE). You may use, change, and share them under those terms.
+The collection is available under the [MIT License](LICENSE). You may use, change, and share it under those terms.
 
-Share only feedback your company allows you to send to your chosen AI service. Keep your API token and saved connection outside the skill folder and chat.
+Share only feedback your company allows you to send to your chosen AI service. Keep your API token and saved connection outside the collection folder and chat.
 
 For help, [contact GuildQuality Support](https://help.guildquality.com/gq3/get-support-live-chat/) or email [support@guildquality.com](mailto:support@guildquality.com). For a security concern, email Support; do not post API tokens or customer feedback in a public issue.
