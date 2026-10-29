@@ -30,11 +30,11 @@ An API connection lets the assistant read fresh feedback without downloading a n
 
    > Help me connect my GuildQuality account. Check whether this chat can set up and reuse a private API connection. Walk me through setup without asking me to paste my API token into chat.
 
-The assistant needs network tools and a private place to save the token. For the checked local setup, it prepares a command for your private terminal. Review the account and locations, run the command, copy your token from API settings into the hidden prompt, and select an existing saved report.
+The assistant needs network access and a private place to save the token. Follow its setup instructions. If it provides a terminal command, review the account and locations before running it. Enter your token only at the hidden prompt and select an existing saved report when asked.
 
 **Never paste your API token into chat or upload it.** Keep the saved connection outside the skill and shared folders. The saved token is not encrypted; your computer's file permissions protect it. It may allow more than reporting, so keep it private.
 
-Saved-connection setup and reuse have been checked in a local ChatGPT desktop session on macOS. API setup in ChatGPT's cloud chats and Claude/Cowork is still being verified for this beta. If your chat cannot connect, use an export below or contact GuildQuality Support.
+Connection options depend on your AI app and workspace settings. If your chat cannot connect, use an export below or contact GuildQuality Support.
 
 After setup, a fresh chat can check and reuse the saved connection. You should not need to reinstall the skill or enter the token again in that environment. Installing the skill elsewhere does not transfer the connection.
 
