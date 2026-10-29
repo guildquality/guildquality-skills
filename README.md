@@ -8,6 +8,17 @@ Use your own GuildQuality feedback with your AI assistant. Upload an approved Gu
 
 Read [Using GuildQuality Skills](USAGE.md) to install the skill, connect your account, and make reports you can check. Then try the [example questions](EXAMPLES.md).
 
+## Explore the skills
+
+| Skill | What it helps you do | Status |
+| --- | --- | --- |
+| **Analyze Feedback** | Understand trends, compare results, and find themes in customer feedback. | Available |
+| **Respond to Reviews** | Draft and publish replies to customer reviews. | Coming soon |
+| **Import Customers** | Add customers and projects from a spreadsheet. | Coming soon |
+| **Send Surveys** | Choose who to survey and schedule their surveys. | Coming soon |
+| **Manage Locations** | Add locations and manage their settings. | Coming soon |
+| **Manage Users** | Add team members and manage their access. | Coming soon |
+
 ## What to install
 
 Download **`gq-analyze-feedback.zip`** using the link above and install it using your app's skill setup. Keep the whole skill folder together. It holds the instructions, reference notes, license, and Python tools the assistant needs. Once installed, select it in a normal chat or project. Keep your exports and reports in a separate private folder. The beta reads feedback and writes reports. It does not change your account or send messages.
