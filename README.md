@@ -12,29 +12,17 @@ Choose the package for ChatGPT or Claude. Each package includes both available w
 
 | Skill | What it helps you do | Status |
 | --- | --- | --- |
-| **[Analyze Feedback](skills/gq-analyze-feedback/)** | Understand trends, compare results, and find themes in customer feedback. | Available · beta |
-| **[Respond to Profile Reviews](REVIEWS.md)** | Draft review replies and post approved responses on your public GuildQuality profile. | Available · beta |
+| **[Analyze Feedback](USAGE.md#analyze-feedback)** | Understand trends, compare results, and find themes in customer feedback. | Available · beta |
+| **[Respond to Profile Reviews](USAGE.md#respond-to-profile-reviews)** | Draft review replies and post approved responses on your public GuildQuality profile. | Available · beta |
 | **Respond to Surveys** | Reply privately to customers about their survey feedback. | Coming soon |
 | **Respond to Google Reviews** | Draft and post replies to reviews on Google. | Coming soon |
 | **Survey Customers** | Add customers and projects, and schedule their surveys. | Coming soon |
 | **Manage Locations** | Add locations and manage their settings. | Coming soon |
 | **Manage Users** | Add team members and manage their access. | Coming soon |
 
-## Install and update the collection
+## Using the skills
 
-Install **GuildQuality Skills** through your app's Plugins screen. Update the collection to get the latest versions of all included skills. You do not need separate skill downloads.
-
-Keep customer files and saved connections in a separate private folder. Both workflows can use the same saved GuildQuality connection when it is available in their environment. Installing the collection in another app does not transfer the connection.
-
-Analyze Feedback reads feedback and creates reports. Respond to Reviews drafts wording for any channel. With a working API connection, it can post, replace, or remove a response on your **GuildQuality profile** after you approve the specific change. To send a private email or text, make a call, or reply on Google, use that channel's own tools.
-
-## Get started
-
-- [Using GuildQuality Skills](USAGE.md): installation, account connection, and first questions.
-- [Replying to profile reviews](REVIEWS.md): drafting and approving replies.
-- [Example questions](EXAMPLES.md): business questions to try with your own feedback.
-
-These guides are for reading. Install the collection package from the release; the `skills/` folders show its workflows unpacked for browsing.
+[Using GuildQuality Skills](USAGE.md) covers installation, account connection, instructions and examples for each skill, and updates. Keep customer files and saved connections in a separate private folder. Installing the collection in another app does not transfer the connection.
 
 The collection is available under the [MIT License](LICENSE). You may use, change, and share it under those terms.
 

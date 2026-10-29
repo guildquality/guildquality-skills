@@ -48,33 +48,52 @@ Upload an approved GuildQuality export, such as a CSV or spreadsheet. To draft a
 
 The assistant analyzes the records in that file. Upload a new export when you want newer results. Keep local exports and reports in a private folder, separate from the installed collection.
 
-## 3. Ask for what you need
+## 3. Use the skills
 
-With **Analyze Feedback**, choose a period covered by your data:
+Ask for what you need in your own words. You can name a skill or start with a business question. Keep asking follow-up questions in the same chat.
 
-> What happened in our business last month, and where should we focus?
+### Analyze Feedback
 
-Ask follow-up questions in the same chat. Check the dates and business groups used in the report before making decisions. To turn a finding into a reply, ask, “Help me respond to those customers.” Select Respond to Reviews if your app does not choose it. For more ideas, see the [example questions](https://github.com/guildquality/guildquality-skills/blob/main/EXAMPLES.md).
+Use **GuildQuality Analyze Feedback** to understand trends, compare locations, and find themes in customer feedback. It first checks the data you have shared or connected, then uses the dates, business groups, ratings, and comments available to answer your question.
 
-With **Respond to Reviews**, try:
+If you are not sure where to start, ask:
 
-> Which reviews should we answer first? Help me draft replies.
+> What can we learn from our customer feedback?
 
-Or paste a review and ask:
+The assistant can suggest useful questions based on your data. You can also try:
 
-> Help me reply to this unhappy customer. Keep it warm and brief.
+- “What happened in our business last month, and where should we focus?”
+- “What are our best and worst locations right now, and why?”
+- “What are customers complaining about most?”
+- “Is our customer experience getting better or worse?”
+- “What are our teams doing well that we should repeat elsewhere?”
+- “Help me prepare a customer experience update for our leadership team.”
 
-Share confirmed facts you want included, such as a completed service visit. You can ask for a shorter reply, a different tone, or another language.
+Choose a period covered by your data. The assistant should explain which records support the answer and point out gaps that affect the conclusion. Check those details before making decisions.
 
-### Review and approve before posting on your profile
+To move from a finding to a reply, ask, “Help me respond to those customers.” Select Respond to Reviews if your app does not choose it.
 
-With a working API connection, the assistant shows the GuildQuality review, any current response, and the exact proposed text before posting on your public GuildQuality profile. Approve the specific change when you are ready. Asking for a draft or changing its wording does not post it.
+### Respond to Profile Reviews
 
-You can also ask to replace or remove a profile response. The assistant checks the saved result. If your chat cannot connect, copy the draft into GuildQuality yourself.
+Use **GuildQuality Respond to Reviews** to draft thoughtful replies and post responses you approve on your public GuildQuality profile. With an account connection, ask it to find reviews that need replies. You can also paste a review or upload an approved export to get a draft without connecting.
 
-For Google or another review site, post the draft through that site's tools. For private email, text, or a call, use GuildQuality's available reply options or your email, messaging, or phone app. This skill does not send through those channels, including GuildQuality's native email. Opening an email or phone app does not mean a message was sent or a call was made.
+Try questions like:
 
-For more detail, read [Using GuildQuality Respond to Reviews](https://github.com/guildquality/guildquality-skills/blob/main/REVIEWS.md).
+- “Which reviews should we answer first? Help me draft replies.”
+- “Help me reply to this unhappy customer. Keep it warm and brief.”
+- “Write a thank-you reply to this positive review.”
+- “Make this reply shorter and less formal.”
+- “We completed the follow-up visit yesterday. Work that into the reply.”
+
+Share only confirmed facts you want included, such as a completed service visit or an approved contact route. A review without a public reply does not tell the assistant whether your team has already helped the customer privately.
+
+#### Review and approve before posting
+
+With a working API connection, the assistant shows the review, any current response, and the exact proposed text before posting on your GuildQuality profile. Review the wording and approve the specific change when you are ready. Asking for a draft or editing its wording does not post it.
+
+You can also ask to replace or remove a profile response. The assistant checks the saved result. If your chat cannot connect, copy the draft into GuildQuality to post it yourself.
+
+For Google or another review site, use the draft in that site's tools. For a private email, text, or call, use GuildQuality's available reply options or your email, messaging, or phone app. This skill does not send through those channels, including GuildQuality's native email. A public profile response is separate from a private reply to a survey.
 
 ## Update GuildQuality Skills
 
