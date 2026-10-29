@@ -13,8 +13,8 @@ Read [Using GuildQuality Skills](USAGE.md) to install a skill and connect your a
 | **Respond to Surveys** | Reply privately to customers about their survey feedback. | Coming soon |
 | **Respond to Google Reviews** | Draft and post replies to reviews on Google. | Coming soon |
 | **Survey Customers** | Add customers and projects, and schedule their surveys. | Coming soon |
-| **Manage Locations** | Add locations and manage their settings. | Planned |
-| **Manage Users** | Add team members and manage their access. | Planned |
+| **Manage Locations** | Add locations and manage their settings. | Coming soon |
+| **Manage Users** | Add team members and manage their access. | Coming soon |
 
 ## Download and install
 
