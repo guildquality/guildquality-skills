@@ -17,7 +17,7 @@ An `.env` file is useful only when the selected runtime already has an explicit 
 Resolve the installed skill directory from this client's actual skill registration. Keep the working directory in the user's private analysis workspace; do not use the installed skill folder for exports or reports. In the commands below, set `gq_skill_dir` to that verified absolute install path, for example:
 
 ```sh
-gq_skill_dir="/absolute/path/to/installed/guildquality-analyze-feedback"
+gq_skill_dir="/absolute/path/to/installed/gq-analyze-feedback"
 ```
 
 Invoke the packaged helper by that path. Use a dedicated private directory outside the installed skill and repository, with one account/environment per directory. The examples contain no key; replace account/scope/origin with explicitly approved values, never inferred from the key.

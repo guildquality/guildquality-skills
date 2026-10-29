@@ -12,7 +12,7 @@ import time
 from urllib.parse import parse_qsl, urlencode, urlsplit
 import gq_transport as transport
 from gq_transport import ClientError
-VERSION = '0.2.8-beta.3'
+VERSION = '0.2.8-beta.4'
 READS = {'surveys', 'reviews', 'children', 'reports', 'team', 'custom-fields', 'project-user-roles', 'review-summary', 'contacts/opt-in-status'}
 SAFE_QUERY = {'since', 'until', 'dateFilter', 'orderBy', 'status', 'reportId', 'questions', 'filterByCompanyIds', 'page', 'contactEmails', 'projectIds', 'contactIds', 'isImported', 'archived'}
 SURVEY_STATUS_GROUPS = {'completed': frozenset({'Completed'}), 'in-progress': frozenset({'In progress'}), 'scheduled': frozenset({'Scheduled'}), 'abandoned': frozenset({'Abandoned'}), 'no-response': frozenset({'Abandoned', 'No response'})}

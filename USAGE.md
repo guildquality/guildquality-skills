@@ -4,13 +4,13 @@ GuildQuality Skills helps your AI assistant compare customer feedback, check sco
 
 Use your company's approved AI workspace and share only data your company allows. You can start with a GuildQuality export. You do not need an API key to analyze a file.
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.2.8-beta.3/guildquality-analyze-feedback.zip">Download GuildQuality Skills (beta)</a></p>
+<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.2.8-beta.4/gq-analyze-feedback.zip">Download GuildQuality Skills (beta)</a></p>
 
 ## 1. Install the skill
 
 Download the ZIP above. Use your app's Skills screen to install it with all its files.
 
-**ChatGPT:** open [Skills](https://chatgpt.com/skills), choose **Add → Upload from your computer**, and select the ZIP. Confirm that **guildquality-analyze-feedback** appears under Installed. In a new chat, type **@** and select it.
+**ChatGPT:** open [Skills](https://chatgpt.com/skills), choose **Add → Upload from your computer**, and select the ZIP. Confirm that **gq-analyze-feedback** appears under Installed. In a new chat, type **@** and select it.
 
 **Claude / Cowork:** open **Customize → Skills → Add → Upload skill**, select the ZIP, and enable the skill. Older layouts use **+ → Create skill → Upload a skill**. Enable **Create and edit files** or **Code execution and file creation** in Settings if asked. This lets Claude analyze files; it does not mean you need Claude Code.
 
@@ -18,7 +18,7 @@ If the upload option is missing, update your app and check with your workspace a
 
 ## 2. Add your GuildQuality data
 
-Start a new chat and ask it to use **GuildQuality Analyze Feedback**. If your app offers **Work** or **Cowork**, use it for the analysis. In apps that combine chat and work, just describe the task.
+Start a new chat and ask it to use **GQ Analyze Feedback**. If your app offers **Work** or **Cowork**, use it for the analysis. In apps that combine chat and work, just describe the task.
 
 Upload an approved GuildQuality export, such as a CSV or spreadsheet. The assistant uses the records in that file and explains any missing data that affects the answer. For local files, use a private folder for exports and reports, separate from the installed skill.
 

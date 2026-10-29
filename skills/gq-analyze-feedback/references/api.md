@@ -1,6 +1,23 @@
 # Company API reference
 
-Checked 2026-10-28 against the public [Postman reference](https://documenter.getpostman.com/view/2124402/TVRecqCj) and current backend route/controller source. This is a curated guide. Consult current Postman documentation before using additional fields or operations; do not send credentials to documentation URLs.
+Checked 2026-10-28 against the public [GuildQuality API documentation](https://documenter.getpostman.com/view/2124402/TVRecqCj) and current backend route/controller source. This packaged guide maps reporting tasks to the API and retains known behavior that affects correct analysis. Use the online documentation for additional request/response details.
+
+## Look up capabilities when needed
+
+Before saying a business question cannot be answered, check the relevant documentation and the selected account's available fields. Keep this lookup behind the scenes unless the user asks about the API. A documented field is a possibility, not proof that this account supplies it or that retrieval is complete.
+
+The [public Postman page](https://documenter.getpostman.com/view/2124402/TVRecqCj) is the main online reference. It also loads [machine-readable collection JSON](https://documenter.gw.postman.com/api/collections/2124402/TVRecqCj?segregateAuth=true&versionTag=latest), verified anonymously on the date above. When a permitted web tool can fetch JSON, search its `item` entries by request name and inspect the relevant `request` method, URL, description and response examples. Entries may contain nested `item` folders. This is the published page's backing endpoint, not a guaranteed stable Postman API contract; fall back to the public page if it changes or is unavailable. Neither lookup needs the customer's GuildQuality key, a Postman key or sign-in. Do not send account data or credentials to documentation hosts, import a saved environment, or execute collection scripts or example requests as part of reading documentation.
+
+Use this task map to choose the relevant entries:
+
+| Business need | Documentation entries and evidence to inspect |
+| --- | --- |
+| Performance, trends, recurring feedback | **Get Surveys / Get Survey**: dates, statuses, question answers and available project fields; **Get Reviews / Get Review** for review feedback. |
+| Locations, territories, divisions or other business groups | **Get Company Children** for related account identities; **Get Custom Fields** for field labels and possible values; survey `project.customFilters` for values actually assigned to feedback. Inspect those assignments and their business meaning before treating a group as a physical location or claiming full coverage. |
+| Reuse a customer's reporting segments | **Get Reports**, then **Get Surveys** with `reportId`. Confirm actual filters and coverage before comparing saved views; a report name alone does not define a fair comparison. |
+| Staff or service-role analysis | **Get Team / Get Project User Roles** plus verified assignments on survey projects. Staff names mentioned in comments do not establish responsibility. |
+
+Reading the wider documentation does not extend the reporting helper's supported endpoints, account scope or permissions. Use the existing connection helper for customer data; never bypass a refused request because Postman lists an operation. Retain the verified caveats below when examples differ, including array-filter syntax, pagination and survey-template side effects. If an additional documented capability is not supported by the helper or cannot be checked here, identify that specific gap rather than declaring that GuildQuality has no such data. If online documentation is unavailable, use this packaged map and state any remaining uncertainty.
 
 Production base URL: `https://www.guildquality.com/company-api/v3`. The helper requires a selected approved environment manifest, account binding, and separate private credential reference; staging does not inherit this production destination. Never infer an origin from a token or fall back after failure. Use Bearer authentication and `Accept: application/json`.
 
