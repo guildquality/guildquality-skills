@@ -1,14 +1,14 @@
 # Using GuildQuality Skills
 
-Use GuildQuality Skills in ChatGPT or Claude to understand customer feedback and write thoughtful review replies. This beta includes **Analyze Feedback** and **Respond to Reviews**.
+Use GuildQuality Skills in ChatGPT or Claude to understand customer feedback and write thoughtful review replies. This beta includes **Analyze Feedback** and **Respond to Reviews**. Respond to Reviews drafts replies for any channel and posts approved responses on your **GuildQuality profile**.
 
 Connect your GuildQuality account for fresh feedback, or upload an export to get started with a file. Use your company's approved AI workspace and share only data your company allows.
 
 Choose the skill you need, or install both. Each download is a separate skill.
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.2.8-beta.4/gq-analyze-feedback.zip">Download Analyze Feedback (beta)</a></p>
+<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.3.0-beta.2/gq-analyze-feedback.zip">Download Analyze Feedback (beta)</a></p>
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.3.0-beta.1/gq-respond-to-reviews.zip">Download Respond to Reviews (beta)</a></p>
+<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.3.0-beta.2/gq-respond-to-reviews.zip">Download Respond to Reviews (beta)</a></p>
 
 ## 1. Install the skill
 
@@ -18,6 +18,8 @@ Download a ZIP above. Use your app's Skills screen to install it with all its fi
 
 **Claude / Cowork:** open **Customize → Skills → Add → Upload skill**, select the ZIP, and enable the skill. Older layouts use **+ → Create skill → Upload a skill**. Enable **Create and edit files** or **Code execution and file creation** in Settings if asked. This lets Claude analyze files; it does not mean you need Claude Code.
 
+Already installed? Use the new ZIPs to update both skills in your app's Skills screen. This keeps the analysis and reply guidance working together.
+
 If the upload option is missing, update your app and check with your workspace administrator or GuildQuality Support. Availability depends on your plan and workspace settings. Attaching the ZIP to a chat does not install it for future chats.
 
 ## 2. Add your GuildQuality data
@@ -26,7 +28,7 @@ Start a new chat and select **GuildQuality Analyze Feedback** or **GuildQuality 
 
 ### Connect your account — recommended for fresh feedback
 
-An API connection lets the assistant read fresh feedback without downloading a new export each time. Respond to Reviews can also publish replies you approve. Both skills can use the same saved connection in the same environment.
+An API connection lets the assistant read fresh feedback without downloading a new export each time. Respond to Reviews can also post replies you approve on your GuildQuality profile. Both skills can use the same saved connection in the same environment.
 
 1. Open your [GuildQuality API settings](https://www.guildquality.com/company/manage/account/api). Sign in if asked, and check that you are in the account you want to use.
 2. Turn **API** to **On**. Use the existing **API token**, or choose **Generate** if there isn't one. If you cannot change these settings, ask your GuildQuality administrator for help. Avoid **Regenerate**: it replaces the token used by any existing integrations.
@@ -54,7 +56,7 @@ With **Analyze Feedback**, choose a period covered by your data:
 
 > What happened in our business last month, and where should we focus?
 
-Ask follow-up questions in the same chat. Check the dates and business groups used in the report before making decisions. For more ideas, see the [example questions](https://github.com/guildquality/guildquality-skills/blob/main/EXAMPLES.md).
+Ask follow-up questions in the same chat. Check the dates and business groups used in the report before making decisions. To turn a finding into a reply, ask, “Help me respond to those customers.” Select Respond to Reviews if your app does not choose it. For more ideas, see the [example questions](https://github.com/guildquality/guildquality-skills/blob/main/EXAMPLES.md).
 
 With **Respond to Reviews**, try:
 
@@ -66,11 +68,13 @@ Or paste a review and ask:
 
 Share confirmed facts you want included, such as a completed service visit. You can ask for a shorter reply, a different tone, or another language.
 
-### Review and approve before publishing
+### Review and approve before posting on your profile
 
-With a working API connection, the assistant shows the review, any current reply, and the exact proposed text before publishing. Approve the specific change when you are ready. Asking for a draft or changing its wording does not publish it.
+With a working API connection, the assistant shows the GuildQuality review, any current response, and the exact proposed text before posting on your public GuildQuality profile. Approve the specific change when you are ready. Asking for a draft or changing its wording does not post it.
 
-You can also ask to replace or remove a reply. The assistant checks the saved result. If your chat cannot connect, copy the draft into GuildQuality yourself. Replies for Google or other sites must be posted through those sites' own tools.
+You can also ask to replace or remove a profile response. The assistant checks the saved result. If your chat cannot connect, copy the draft into GuildQuality yourself.
+
+For Google or another review site, post the draft through that site's tools. For private email, text, or a call, use GuildQuality's available reply options or your email, messaging, or phone app. This skill does not send through those channels, including GuildQuality's native email. Opening an email or phone app does not mean a message was sent or a call was made.
 
 For more detail, read [Using GuildQuality Respond to Reviews](https://github.com/guildquality/guildquality-skills/blob/main/REVIEWS.md).
 

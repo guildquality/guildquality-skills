@@ -1,7 +1,7 @@
 ---
 name: gq-respond-to-reviews
 license: MIT
-description: Draft and revise thoughtful GuildQuality review replies from supplied text or connected reviews. Prepare approved publication, replacement, or clearing of a specific GuildQuality response; review themes and performance analysis belong in Analyze Feedback.
+description: Draft review replies for any channel. Find GuildQuality reviews and post, replace, or remove approved responses on the GuildQuality profile. Email, text, phone, and other review sites use their own channel tools; feedback analysis belongs in Analyze Feedback.
 ---
 
 # GuildQuality Respond to Reviews
@@ -24,7 +24,9 @@ Read the [review API workflow](references/reviews.md#connect-and-read) before li
 
 ## Publish only the approved reply
 
-The supported destination is the response on the named **GuildQuality** review. A Google, Facebook or other site's review pasted into chat can be drafted here, but this API does not establish a way to post it on that site. Explain the concrete destination gap and provide a copyable draft. Do not publish a GuildQuality reply as a substitute.
+The supported posting destination is the response on the named **GuildQuality profile review**. Preserve the user's requested channel. For Google, Facebook, native GuildQuality email, another email service, text or phone, provide useful draft wording and explain the appropriate channel handoff; this skill has no sending or calling tool for those destinations. Do not substitute a public profile post for a private message or another site's reply. See [channel guidance](references/reviews.md#choose-the-destination).
+
+If “send” or “reply” leaves the destination unclear, ask a short destination question before taking an action. When the destination is already explicit, do not ask it again. Opening or preparing a `mailto:`, `sms:` or `tel:` link is only an app handoff, not evidence that a message was sent or a call happened; do not activate those links automatically or report delivery from them.
 
 Use the review-only `scripts/gq_reviews.py` preview/execute/reconcile workflow described in the [review API workflow](references/reviews.md#preview-approve-and-publish). It reuses the saved reporting profile and does not enable survey or customer-record changes. Before publishing, show the exact review/account/destination, existing response, proposed text and whether this creates, replaces or clears a reply. Obtain the user's explicit approval for that exact visible action. Existing approval persists only while target, text, effects and current state still match; changed wording or a changed existing response needs a fresh preview and approval. Do not invent an approval reference or treat a helper digest/file as conversational approval.
 
