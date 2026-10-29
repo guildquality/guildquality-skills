@@ -14,10 +14,9 @@ Read [Using GuildQuality Skills](USAGE.md) to install the skill, connect your ac
 | --- | --- | --- |
 | **Analyze Feedback** | Understand trends, compare results, and find themes in customer feedback. | Available |
 | **Respond to Reviews** | Draft and publish replies to customer reviews. | Coming soon |
-| **Import Customers** | Add customers and projects from a spreadsheet. | Coming soon |
-| **Send Surveys** | Choose who to survey and schedule their surveys. | Coming soon |
-| **Manage Locations** | Add locations and manage their settings. | Coming soon |
-| **Manage Users** | Add team members and manage their access. | Coming soon |
+| **Survey Customers** | Add customers and projects, and schedule their surveys. | Coming soon |
+| **Manage Locations** | Add locations and manage their settings. | Planned |
+| **Manage Users** | Add team members and manage their access. | Planned |
 
 ## What to install
 
