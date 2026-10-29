@@ -18,7 +18,7 @@ If the upload option is missing, update your app and check with your workspace a
 
 ## 2. Add your GuildQuality data
 
-Start a new chat and ask it to use **GQ Analyze Feedback**. If your app offers **Work** or **Cowork**, use it for the analysis. In apps that combine chat and work, just describe the task.
+Start a new chat and ask it to use **GuildQuality Analyze Feedback**. If your app offers **Work** or **Cowork**, use it for the analysis. In apps that combine chat and work, just describe the task.
 
 Upload an approved GuildQuality export, such as a CSV or spreadsheet. The assistant uses the records in that file and explains any missing data that affects the answer. For local files, use a private folder for exports and reports, separate from the installed skill.
 
