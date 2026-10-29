@@ -9,7 +9,9 @@ Read [Using GuildQuality Skills](USAGE.md) to install a skill and connect your a
 | Skill | What it helps you do | Status |
 | --- | --- | --- |
 | **[Analyze Feedback](skills/gq-analyze-feedback/)** | Understand trends, compare results, and find themes in customer feedback. | Available · beta |
-| **[Respond to Reviews](REVIEWS.md)** | Draft review replies and post approved responses on your GuildQuality profile. | Available · beta |
+| **[Respond to Profile Reviews](REVIEWS.md)** | Draft review replies and post approved responses on your public GuildQuality profile. | Available · beta |
+| **Respond to Surveys** | Reply privately to customers about their survey feedback. | Coming soon |
+| **Respond to Google Reviews** | Draft and post replies to reviews on Google. | Coming soon |
 | **Survey Customers** | Add customers and projects, and schedule their surveys. | Coming soon |
 | **Manage Locations** | Add locations and manage their settings. | Planned |
 | **Manage Users** | Add team members and manage their access. | Planned |
@@ -17,7 +19,9 @@ Read [Using GuildQuality Skills](USAGE.md) to install a skill and connect your a
 ## Download and install
 
 - **[Download Analyze Feedback](https://github.com/guildquality/guildquality-skills/releases/download/v0.3.0-beta.2/gq-analyze-feedback.zip)** · 0.2.8-beta.5
-- **[Download Respond to Reviews](https://github.com/guildquality/guildquality-skills/releases/download/v0.3.0-beta.2/gq-respond-to-reviews.zip)** · 0.3.0-beta.2
+- **[Download Respond to Profile Reviews](https://github.com/guildquality/guildquality-skills/releases/download/v0.3.0-beta.2/gq-respond-to-reviews.zip)** · 0.3.0-beta.2
+
+The profile-review skill is the existing **GuildQuality Respond to Reviews** download.
 
 Use your app's Skills screen to install each ZIP with all its files. Keep the skill folder together: it holds the instructions, reference notes, license, and Python tools the assistant needs. Select the skill in a chat, and keep customer files and saved connections in a separate private folder.
 
@@ -28,7 +32,7 @@ Already installed? Use the new ZIPs to update both skills in your app's Skills s
 ## Get started
 
 - [Using GuildQuality Skills](USAGE.md): installation, account connection, and first questions.
-- [Using Respond to Reviews](REVIEWS.md): drafting and approving replies.
+- [Replying to profile reviews](REVIEWS.md): drafting and approving replies.
 - [Example questions](EXAMPLES.md): business questions to try with your own feedback.
 
 These guides are for reading. Install the ZIPs above; the `skills/` folders show the same skill files unpacked for browsing.
