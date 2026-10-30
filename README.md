@@ -4,7 +4,7 @@ Use your GuildQuality feedback with your AI assistant to understand trends, find
 
 **[Get GuildQuality Skills (beta)](USAGE.md#1-install-guildquality-skills)**
 
-**Current release: 0.4.0-beta.5.**
+**Current release: 0.4.0-beta.7.**
 
 One collection ZIP works in **ChatGPT and Claude**. The **Gemini Task edition** supports feedback exports and review drafts. Read [Using GuildQuality Skills](USAGE.md) to install the collection, connect your account in ChatGPT or Claude, or start with an approved export or a review you paste into chat.
 
@@ -28,4 +28,4 @@ The collection is available under the [MIT License](LICENSE). You may use, chang
 
 Share only feedback your company allows you to send to your chosen AI service. Keep your API token and saved connection outside the collection folder and chat.
 
-For help, [contact GuildQuality Support](https://help.guildquality.com/gq3/get-support-live-chat/) or email [support@guildquality.com](mailto:support@guildquality.com). For a security concern, email Support; do not post API tokens or customer feedback in a public issue.
+For help or feedback, [contact GuildQuality Support](https://help.guildquality.com/gq3/get-support-live-chat/) or email [support@guildquality.com](mailto:support@guildquality.com). For a security concern, email Support; do not post API tokens or customer feedback in a public issue.

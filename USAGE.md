@@ -10,7 +10,7 @@ In ChatGPT or Claude, connect your GuildQuality account for fresh feedback and a
 
 Use the same complete collection ZIP in either app. It includes both available skills.
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.5/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
+<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.7/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
 
 Upload the ZIP without unpacking it.
 
@@ -20,7 +20,7 @@ Upload the ZIP without unpacking it.
 
 ### Gemini Task
 
-[Download the Gemini Task edition (beta)](https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.5/guildquality-skills-gemini.zip) for feedback exports and review drafts. To publish a reply, copy the draft into GuildQuality or the channel you want to use.
+[Download the Gemini Task edition (beta)](https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.7/guildquality-skills-gemini.zip) for feedback exports and review drafts. To publish a reply, copy the draft into GuildQuality or the channel you want to use.
 
 In Gemini, open **More → Customize → Skills**, then choose **Create → Upload**. In the upload dialog, choose **files** and select the Gemini ZIP without unpacking it. Review the skill, then choose **Create**. The collection appears on your Skills page.
 
@@ -121,7 +121,9 @@ If you installed the earlier separate GuildQuality skills, first confirm the col
 
 ## Get help
 
-[Contact GuildQuality Support](https://help.guildquality.com/gq3/get-support-live-chat/) or email [support@guildquality.com](mailto:support@guildquality.com). Share your app, operating system, release version, question, and error message. Remove API tokens, private connection files, and customer contact details.
+If an answer does not look right, ask the assistant to check it against your data and explain the result.
+
+For a problem, question, or idea about GuildQuality Skills, [contact GuildQuality Support](https://help.guildquality.com/gq3/get-support-live-chat/) or email [support@guildquality.com](mailto:support@guildquality.com). You can ask the assistant to draft a short message explaining what happened. Review the draft and send it to Support when you are ready; it is not sent automatically. Leave out API tokens, saved connection files, and customer contact details.
 
 Use the GuildQuality app to send surveys or import customers. Codex and Claude Code are also options for people who prefer coding tools; they are not required to analyze files or draft replies.
 
