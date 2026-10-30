@@ -4,16 +4,16 @@ Use your GuildQuality feedback with your AI assistant to understand trends, find
 
 **[Get GuildQuality Skills (beta)](USAGE.md#1-install-guildquality-skills)**
 
-**Current release: 0.4.0-beta.1.**
+**Current release: 0.4.0-beta.5.**
 
-Choose the package for ChatGPT or Claude. Each package includes both available workflows. Read [Using GuildQuality Skills](USAGE.md) to install the collection and connect your account, or start with an approved export or a review you paste into chat.
+One collection ZIP works in **ChatGPT and Claude**. The **Gemini Task edition** supports feedback exports and review drafts. Read [Using GuildQuality Skills](USAGE.md) to install the collection, connect your account in ChatGPT or Claude, or start with an approved export or a review you paste into chat.
 
 ## Explore the skills
 
 | Skill | What it helps you do | Status |
 | --- | --- | --- |
 | **[Analyze Feedback](USAGE.md#analyze-feedback)** | Understand trends, compare results, and find themes in customer feedback. | Available · beta |
-| **[Respond to Profile Reviews](USAGE.md#respond-to-profile-reviews)** | Draft review replies and post approved responses on your public GuildQuality profile. | Available · beta |
+| **[Respond to Profile Reviews](USAGE.md#respond-to-profile-reviews)** | Draft review replies. With a working connection in ChatGPT or Claude, post approved responses on your public GuildQuality profile. | Available · beta |
 | **Respond to Surveys** | Reply privately to customers about their survey feedback. | Coming soon |
 | **Respond to Google Reviews** | Draft and post replies to reviews on Google. | Coming soon |
 | **Survey Customers** | Add customers and projects, and schedule their surveys. | Coming soon |

@@ -1,30 +1,40 @@
 # Using GuildQuality Skills
 
-Install GuildQuality Skills in ChatGPT or Claude to understand customer feedback and write thoughtful review replies. This beta collection includes **Analyze Feedback** and **Respond to Profile Reviews**. The review skill drafts wording for any channel and posts approved responses on your **GuildQuality profile**.
+Use GuildQuality Skills in ChatGPT, Claude, or Gemini Task to understand customer feedback and write thoughtful review replies. This beta collection includes **Analyze Feedback** and **Respond to Profile Reviews**.
 
-Connect your GuildQuality account for fresh feedback, or upload an export to get started with a file. Use your company's approved AI workspace and share only data your company allows.
+In ChatGPT or Claude, connect your GuildQuality account for fresh feedback and approved replies on your public **GuildQuality profile**. You can also use an export or a review you paste into chat. The Gemini Task edition works with exports and pasted reviews. Use your company's approved AI workspace and share only data your company allows.
 
 ## 1. Install GuildQuality Skills
 
-Choose your AI app below. Each download is the complete collection and includes both available skills.
+### ChatGPT or Claude
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.1/guildquality-skills-chatgpt.zip">Download for ChatGPT (beta)</a></p>
+Use the same complete collection ZIP in either app. It includes both available skills.
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.1/guildquality-skills-claude.plugin">Download for Claude (beta)</a></p>
+<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.5/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
 
-Upload the downloaded package without unpacking it.
+Upload the ZIP without unpacking it.
 
-**ChatGPT:** open [Plugins](https://chatgpt.com/plugins), choose **Add → Upload plugin archive**, and select the ChatGPT ZIP. Choose **Add plugin**, then **Install plugin**.
+**ChatGPT:** open [Plugins](https://chatgpt.com/plugins), choose **Add → Upload plugin archive**, and select the ZIP. Choose **Add plugin**, then **Install plugin**. Open GuildQuality Skills and choose **Try in chat**. Keep **GuildQuality Skills** selected as you type your question.
 
-**Claude / Cowork:** open **Customize → Plugins → Add plugin → Upload plugin**. Select the Claude package and choose **Upload**. The collection is enabled when installation finishes.
+**Claude / Cowork:** open **Customize → Plugins → Add plugin → Upload plugin**. Select the same ZIP and choose **Upload**. The collection is enabled when installation finishes. Open GuildQuality Skills and choose **Try in chat** to begin. Keep **Analyze Feedback** selected and replace the example question with your own.
 
-If a plugin option is missing, update your app and check with your workspace administrator or GuildQuality Support. Availability depends on your plan and workspace settings. Attaching the package to a chat does not install it for future chats.
+### Gemini Task
+
+[Download the Gemini Task edition (beta)](https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.5/guildquality-skills-gemini.zip) for feedback exports and review drafts. To publish a reply, copy the draft into GuildQuality or the channel you want to use.
+
+In Gemini, open **More → Customize → Skills**, then choose **Create → Upload**. In the upload dialog, choose **files** and select the Gemini ZIP without unpacking it. Review the skill, then choose **Create**. The collection appears on your Skills page.
+
+Start a new Gemini chat and choose **Task**. Type **@** and select **GuildQuality Skills** from the menu. Add an approved export, paste a review, or ask your business question. Keep the skill selected as you type. If Task asks for permissions the first time, review them under your company’s policy before continuing.
+
+If Skills or Task is not available in your Gemini account, check [Google's skill requirements](https://support.google.com/gemini/answer/17094296). Use an AI workspace your company approves.
+
+If an installation option is missing, update your app and check with your workspace administrator or GuildQuality Support. Availability depends on your plan and workspace settings. Attaching the package to a chat does not install it for future chats.
 
 ## 2. Add your GuildQuality data
 
-Start a new chat with **GuildQuality Skills**. Choose one of these two ways to add your data.
+Start a new chat with **GuildQuality Skills**. In ChatGPT or Claude, connect your account or upload an export. In Gemini Task, use an export or paste the review you want to answer.
 
-### Connect your account — recommended for fresh feedback
+### Connect your account — recommended in ChatGPT or Claude
 
 An API connection lets the assistant read fresh feedback without downloading a new export each time. Respond to Reviews can also post replies you approve on your GuildQuality profile. Both workflows can use the same saved connection when it is available in their environment.
 
@@ -42,7 +52,7 @@ Connection options depend on your AI app and workspace settings. If your chat ca
 
 After setup, a fresh chat can check and reuse the saved connection. You should not need to reinstall the skill or enter the token again in that environment. Installing the collection in another app does not transfer the connection.
 
-### Or upload an export — a simple way to start
+### Or upload an export — works in every app
 
 Upload an approved GuildQuality export, such as a CSV or spreadsheet. To draft a reply, you can also paste the review into chat. No API token or connection setup is needed for these options.
 
@@ -71,11 +81,11 @@ The assistant can suggest useful questions based on your data. You can also try:
 
 Choose a period covered by your data. The assistant should explain which records support the answer and point out gaps that affect the conclusion. Check those details before making decisions.
 
-To move from a finding to a reply, ask, “Help me respond to those customers.” Select Respond to Reviews if your app does not choose it.
+To move from a finding to a reply, ask, “Help me respond to those customers.” In ChatGPT or Claude, ask it to use **GuildQuality Respond to Reviews** if it does not choose that skill.
 
 ### Respond to Profile Reviews
 
-Use **GuildQuality Respond to Reviews** to draft thoughtful replies and post responses you approve on your public GuildQuality profile. With an account connection, ask it to find reviews that need replies. You can also paste a review or upload an approved export to get a draft without connecting.
+Use **GuildQuality Respond to Reviews** to draft thoughtful replies from a review you paste or an approved export. In ChatGPT or Claude, a working account connection also lets you find reviews that need replies and post responses you approve on your public GuildQuality profile.
 
 Try questions like:
 
@@ -89,21 +99,23 @@ Share only confirmed facts you want included, such as a completed service visit 
 
 #### Review and approve before posting
 
-With a working API connection, the assistant shows the review, any current response, and the exact proposed text before posting on your GuildQuality profile. Review the wording and approve the specific change when you are ready. Asking for a draft or editing its wording does not post it.
+In ChatGPT or Claude, with a working API connection, the assistant shows the review, any current response, and the exact proposed text before posting on your GuildQuality profile. Review the wording and approve the specific change when you are ready. Asking for a draft or editing its wording does not post it.
 
-You can also ask to replace or remove a profile response. The assistant checks the saved result. If your chat cannot connect, copy the draft into GuildQuality to post it yourself.
+You can also ask to replace or remove a profile response. The assistant checks the saved result. In Gemini Task, or if your chat cannot connect, copy the draft into GuildQuality to post it yourself.
 
 For Google or another review site, use the draft in that site's tools. For a private email, text, or call, use GuildQuality's available reply options or your email, messaging, or phone app. This skill does not send through those channels, including GuildQuality's native email. A public profile response is separate from a private reply to a survey.
 
 ## Update GuildQuality Skills
 
-Download the latest package for your app from the buttons above.
+Download the latest collection ZIP again. Use **GuildQuality Skills** for ChatGPT or Claude, or the **Gemini Task edition** for Gemini.
 
 **ChatGPT:** open GuildQuality Skills in **Plugins**. Choose **More actions → Upload new version** and select the new ZIP.
 
-**Claude / Cowork:** use **Customize → Plugins → Add plugin → Upload plugin** to upload the latest Claude package. Choose **Replace** when asked to replace GuildQuality Skills.
+**Claude / Cowork:** use **Customize → Plugins → Add plugin → Upload plugin** to upload the same latest collection ZIP. Choose **Replace** when asked to replace GuildQuality Skills.
 
-Update the collection to get the latest versions of both included skills.
+**Gemini:** on your Skills page, open the collection's menu and choose **Replace skill**. Choose **files** and select the latest Gemini ZIP. If the menu then shows **Activate**, choose it before starting a new chat.
+
+Updating the collection updates both workflows. Start a new chat with GuildQuality Skills to use the latest guidance.
 
 If you installed the earlier separate GuildQuality skills, first confirm the collection is installed and both workflows work. Then you can remove the old standalone copies from your app's Skills screen to avoid duplicates. Keep your saved API connection in its separate private folder.
 

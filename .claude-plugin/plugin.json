@@ -5,8 +5,17 @@
   "description": "Understand GuildQuality feedback and draft approved profile review replies.",
   "displayName": "GuildQuality Skills",
   "homepage": "https://help.guildquality.com/gq3/ai-skills/",
+  "interface": {
+    "capabilities": [],
+    "category": "Data & Analytics",
+    "defaultPrompt": "Help me understand my customer feedback and decide what to do next.",
+    "developerName": "GuildQuality",
+    "displayName": "GuildQuality Skills",
+    "longDescription": "Analyze GuildQuality survey and review feedback, find useful next steps, and draft replies. Post approved responses on your GuildQuality profile with a working private account connection. Other reply channels use their own tools.",
+    "shortDescription": "Understand customer feedback"
+  },
   "license": "MIT",
   "name": "guildquality-skills",
   "repository": "https://github.com/guildquality/guildquality-skills",
-  "version": "0.4.0-beta.1"
+  "version": "0.4.0-beta.5"
 }
