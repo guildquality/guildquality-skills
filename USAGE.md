@@ -10,7 +10,7 @@ In ChatGPT or Claude, connect your GuildQuality account for fresh feedback and a
 
 Use the same complete collection ZIP in either app. It includes both available skills.
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.34/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
+<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.35/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
 
 Upload the ZIP without unpacking it.
 
