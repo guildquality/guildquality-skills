@@ -1,6 +1,6 @@
 # Using GuildQuality Skills
 
-Use GuildQuality Skills in ChatGPT or Claude to understand customer feedback and write thoughtful review replies. This beta collection includes **Analyze Feedback** and **Respond to Profile Reviews**.
+Use GuildQuality Skills in ChatGPT or Claude to understand your feedback and write thoughtful review replies. This beta collection includes **Analyze Feedback** and **Respond to Profile Reviews**.
 
 In ChatGPT or Claude, connect your GuildQuality account for fresh feedback and approved replies on your public **GuildQuality profile**. You can also use an export or a review you paste into chat. Use your company's approved AI workspace and share only data your company allows.
 
@@ -10,7 +10,7 @@ In ChatGPT or Claude, connect your GuildQuality account for fresh feedback and a
 
 Use the same complete collection ZIP in either app. It includes both available skills.
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.29/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
+<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.34/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
 
 Upload the ZIP without unpacking it.
 
@@ -56,7 +56,7 @@ Ask for what you need in your own words. You can name a skill or start with a bu
 
 ### Analyze Feedback
 
-Use **GuildQuality Analyze Feedback** to understand trends, compare locations, and find themes in customer feedback. It first checks the data you have shared or connected, then uses the dates, business groups, ratings, and comments available to answer your question.
+Use **GuildQuality Analyze Feedback** to understand trends, compare locations, and find themes in your feedback. It first checks the data you have shared or connected, then uses the dates, business groups, ratings, and comments available to answer your question.
 
 If you are not sure where to start, ask:
 

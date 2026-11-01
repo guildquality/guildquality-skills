@@ -570,7 +570,7 @@ def _report_summary(calculation, metric, latest_in_period=False):
         categories = [calculation.get(key) for key in ("promoters", "passives", "detractors")]
         if all(type(value) is int and value >= 0 for value in categories) and sum(categories) == calculation["n"]:
             output.update(zip(("promoter_responses", "passive_responses", "detractor_responses"), categories))
-        output["response_count_unit"] = "survey responses, not distinct customers"
+        output["response_count_unit"] = "survey responses, not distinct people"
     elif metric == "count":
         output = {"completed": calculation["completed_count"]}
     else:
@@ -674,30 +674,27 @@ def _readout_number(value, signed=False):
     return "+" + text if signed and value > 0 else text
 
 
-def _report_readout(output):
+def _report_readout(output, analysis=None):
     period = output["period"]
     dates = period["since"] + " to " + period["until"]
     if output.get("state") != "complete":
         return "The requested report for " + dates + " could not be completed; no metrics are reported."
     metric, overall = output["metric"], output["overall"]
     if metric == "nps":
-        responses = overall["responses"]
-        customers = overall.get("known_contacts")
-        identity_complete = (overall.get("contact_identity_complete") is True and type(customers) is int
-                             and 0 < customers <= responses)
-        response_phrase = f"{responses} survey {'response' if responses == 1 else 'responses'}"
-        if identity_complete:
-            response_phrase += f" from {customers} {'customer' if customers == 1 else 'customers'}"
-        text = (f"NPS was {_readout_number(overall['nps'])}, based on {response_phrase} ({dates})."
-                if overall["nps"] is not None else f"No eligible NPS responses were found for {dates}; no score is available.")
-        category_keys = ("promoter_responses", "passive_responses", "detractor_responses")
-        categories = [overall.get(key) for key in category_keys]
-        if (overall["nps"] is not None and all(type(value) is int and value >= 0 for value in categories)
-                and sum(categories) == responses):
-            pieces = [f"{value} {label} {'response' if value == 1 else 'responses'}"
-                      for label, value in zip(("promoter", "passive", "detractor"), categories)]
-            text += "\n\nRatings included " + ", ".join(pieces[:-1]) + " and " + pieces[-1] + "."
-        value_key, column, units = "nps", "NPS | Responses", " points"
+        analysis = analysis or _report_analysis()
+        selection_note = None
+        if output.get("selection"):
+            selection_note = "This counts each person's latest completed response within the requested period."
+            before, selected, excluded = (overall.get(key) for key in ("preselection_completed_count", "selected_completed_count", "excluded_earlier_completed_count"))
+            if all(type(value) is int and value >= 0 for value in (before, selected, excluded)):
+                selection_note += f" {selected} selected from {before} completed responses; {excluded} earlier completed {'response' if excluded == 1 else 'responses'} excluded."
+            missing = overall.get("selected_completed_without_eligible_rating_count")
+            if type(missing) is int and missing > 0:
+                selection_note += f" {missing} selected {'response lacked' if missing == 1 else 'responses lacked'} a valid recommendation rating."
+        return analysis.business_recommendation_readout(overall["nps"], overall["responses"],
+            period=analysis.business_period(period["since"], period["until"]),
+            people=overall.get("known_contacts") if overall.get("contact_identity_complete") is True else None,
+            monthly=output.get("monthly"), selection_note=selection_note)
     elif metric == "count":
         text = f"{overall['completed']} {'survey was' if overall['completed'] == 1 else 'surveys were'} completed during {dates}."
         value_key, column, units = "completed", "Completed surveys", ""
@@ -710,19 +707,16 @@ def _report_readout(output):
         else:
             cutoff = output.get("observation", "").startswith("Responses recorded by")
             text = (f"By {period['until']}, {completed} of {sent} {cohort} had completed responses ({_readout_number(overall['response_rate'])}%)."
-                    if cutoff else f"At retrieval, {completed} of {sent} {cohort} had completed responses ({_readout_number(overall['response_rate'])}%).")
+                    if cutoff else f"So far, {completed} of {sent} {cohort} have completed responses ({_readout_number(overall['response_rate'])}%).")
         value_key, column, units = "response_rate", "Completed / sent | Response rate", " percentage points"
     if output.get("selection"):
-        text += "\n\nThis uses each contact's latest completed response within the requested period"
+        text += "\n\nThis uses each person's latest completed response within the requested period"
         before = overall.get("preselection_completed_count")
         selected = overall.get("selected_completed_count")
         excluded = overall.get("excluded_earlier_completed_count")
         if all(type(value) is int and value >= 0 for value in (before, selected, excluded)):
             text += (f": {selected} selected from {before} completed {'response' if before == 1 else 'responses'}; "
                      f"{excluded} earlier completed {'response' if excluded == 1 else 'responses'} excluded.")
-            repeated = overall.get("preselection_contacts_with_multiple_completed")
-            if type(repeated) is int and repeated > 0:
-                text += f" {repeated} {'contact had' if repeated == 1 else 'contacts had'} multiple completed responses before selection."
             missing = overall.get("selected_completed_without_eligible_rating_count")
             if metric == "nps" and type(missing) is int and missing > 0:
                 text += f" {missing} selected {'response lacked' if missing == 1 else 'responses lacked'} an eligible NPS rating."
@@ -751,16 +745,39 @@ def _report_readout(output):
     if overall.get("contact_identity_complete") is True and overall.get("known_contacts") is not None and overall["known_contacts"] < selected_count:
         if metric != "nps":
             text += (f"\n\nThe {selected_count} {'surveys went to' if metric == 'response-rate' else 'completed responses came from'} "
-                     f"{overall['known_contacts']} {'customer' if overall['known_contacts'] == 1 else 'customers'}.")
-        overlap = overall.get("contacts_in_multiple_months")
-        if overlap:
-            action = "had surveys sent" if metric == "response-rate" else "responded"
-            text += f"\n\n{overlap} {'customer' if overlap == 1 else 'customers'} {action} in more than one shown period."
+                     f"{overall['known_contacts']} {'person' if overall['known_contacts'] == 1 else 'people'}.")
     timing = overall.get("response_timing")
     if isinstance(timing, dict) and timing.get("valid_count") and timing.get("unknown_or_invalid_count") == 0:
         text += (f"\n\nOf the completed responses, {timing['same_local_day_count']} arrived on the send date; "
                  f"median elapsed time was {_readout_number(timing['median_elapsed_days'])} {'day' if timing['median_elapsed_days'] == 1 else 'days'} "
                  f"and the maximum was {_readout_number(timing['max_elapsed_days'])} {'day' if timing['max_elapsed_days'] == 1 else 'days'}.")
+    return text
+
+
+def _report_source_readout(output, evidence, analysis):
+    if output.get("state") != "complete":
+        return "There isn't a completed feedback report for this period, so I can't verify its figures yet."
+    period, overall = output["period"], output["overall"]
+    dates = analysis.business_period(period["since"], period["until"])
+    if output["metric"] == "nps":
+        n = overall["responses"]
+        text = f"I used {n} completed survey {'response' if n == 1 else 'responses'} with a valid recommendation rating for {dates}. Each response is counted in the month the survey was completed."
+        if output.get("selection"):
+            text += " Only each person's latest completed response within that period is included."
+    elif output["metric"] == "count":
+        text = f"I counted {overall['completed']} completed survey {'response' if overall['completed'] == 1 else 'responses'} during {dates}, using when each survey was completed."
+    else:
+        text = f"I used surveys sent during {dates}. "
+        if evidence.get("observation") == "period-end":
+            text += f"{overall['completed']} of {overall['sent']} had completed responses by {analysis.business_period(period['until'], period['until'])}."
+        else:
+            text += f"{overall['completed']} of {overall['sent']} have completed responses in their latest recorded results."
+        if evidence.get("denominator") == "attempted":
+            text += " This includes only surveys with recorded outreach attempts."
+    if evidence.get("import_policy") == "exclude imported surveys":
+        text += " Imported feedback was excluded."
+    elif evidence.get("import_policy") == "include imported surveys":
+        text += " Imported feedback was not excluded."
     return text
 
 
@@ -823,10 +840,11 @@ def report(filename, metric, since, until, output_dir, *, timezone="America/New_
             evidence[key] = numeric[key]
     output = {"state": "metrics_withheld", "metric": metric, "period": period,
               "as_of": numeric.get("retrieved_at"), "files": files}
-    output["readout"] = _report_readout(output)
+    output["readout"] = _report_readout(output, analysis)
+    output["source_readout"] = _report_source_readout(output, evidence, analysis)
     if (numeric.get("pagination_complete") is not True or numeric.get("error")
             or not isinstance(numeric.get("data"), list)):
-        evidence.update(state="metrics_withheld", reason="retrieval_incomplete", readout=output["readout"])
+        evidence.update(state="metrics_withheld", reason="retrieval_incomplete", readout=output["readout"], source_readout=output["source_readout"])
         output["reason"] = "retrieval_incomplete"
         if numeric.get("error_code") in transport.ERROR_DIAGNOSTICS:
             output["error_code"] = numeric["error_code"]
@@ -872,8 +890,10 @@ def report(filename, metric, since, until, output_dir, *, timezone="America/New_
     except (ClientError, ValueError, TypeError, KeyError):
         evidence.update(state="metrics_withheld", reason="calculation_refused")
         output["reason"] = "calculation_refused"
-    output["readout"] = _report_readout(output)
+    output["readout"] = _report_readout(output, analysis)
     evidence["readout"] = output["readout"]
+    output["source_readout"] = _report_source_readout(output, evidence, analysis)
+    evidence["source_readout"] = output["source_readout"]
     api.private_write(files["calculations"], evidence)
     return output
 
@@ -931,7 +951,7 @@ def main(argv=None):
     reporting.add_argument("--include-imported", action="store_true")
     reporting.add_argument("--latest-in-period", action="store_true")
     reporting.add_argument("--output-dir", type=Path, required=True)
-    reporting.add_argument("--details", action="store_true", help="Include computed supporting fields in stdout; the default returns the business readout and private file paths")
+    reporting.add_argument("--details", action="store_true", help="Include computed supporting fields and source metadata in stdout; the default returns the business readout and completion state")
     args = parser.parse_args(argv)
     try:
         if args.command == "setup":
@@ -949,8 +969,7 @@ def main(argv=None):
                             observation=args.observation, denominator=args.denominator,
                             include_imported=args.include_imported, latest_in_period=args.latest_in_period)
             if not args.details:
-                result = {key: result[key] for key in ("state", "metric", "period", "as_of", "files", "readout",
-                                                       "reason", "error_code") if key in result}
+                result = {key: result[key] for key in ("state", "readout", "reason", "error_code") if key in result}
         else:
             result = get(args.profile, args.path, args.all_pages, projection=args.projection)
         print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))

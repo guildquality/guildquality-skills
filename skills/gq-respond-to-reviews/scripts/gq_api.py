@@ -13,7 +13,7 @@ import time
 from urllib.parse import parse_qsl, urlencode, urlsplit
 import gq_transport as transport
 from gq_transport import ClientError
-VERSION = '0.3.0-beta.11'
+VERSION = '0.3.0-beta.15'
 READS = {'reviews', 'reports', 'children'}
 SAFE_QUERY = {'since', 'until', 'dateFilter', 'orderBy', 'status', 'reportId', 'questions', 'filterByCompanyIds', 'page', 'contactEmails', 'projectIds', 'contactIds', 'isImported', 'archived', 'attempts'}
 SURVEY_STATUS_GROUPS = {'completed': frozenset({'Completed'}), 'in-progress': frozenset({'In progress'}), 'scheduled': frozenset({'Scheduled'}), 'abandoned': frozenset({'Abandoned'}), 'no-response': frozenset({'Abandoned', 'No response'})}

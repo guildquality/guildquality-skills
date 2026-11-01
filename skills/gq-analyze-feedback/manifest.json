@@ -1,18 +1,18 @@
 {
   "files": {
     "LICENSE": "d33791e4cea4b8cc71eace2e10cbc61ba7f89318ad8e633b03a05d2c3ac5d140",
-    "SKILL.md": "e6bc783c4f18d86ab7fda1dcabd7b175149fd30c60431d89984fccb6e68d76c4",
-    "references/analysis.md": "cec002b2cee0856c38cf6834d6ebf5fe00ff5b48ed68328b38b9a8eab251cf8d",
-    "references/api.md": "77b40770b165dac4abd07d21d541d05b4c72e33ade1065e24e6e4442d084c37c",
+    "SKILL.md": "d7915f4343f0e0787df91a0cdb51d9dbb939386fc60ab81c64d2d71ec9aedc58",
+    "references/analysis.md": "f3a087d7ea5c839aecbb05d95bdf9e9fc566af7bcd6e6b490590a107fc507c8c",
+    "references/api.md": "351d77467bf54debdad0f569aee301ccbbd26e11abad8d055f5aaacf3dc685f0",
     "references/authentication.md": "628d331fd86655a6cca75e641bf64b910ce3a06e80e53144af55467edd6b6d1f",
-    "scripts/gq_analysis.py": "a476251b314cf8c3e0bd314ac2980acc85e806ee0c8530ade21806cf26087a4b",
-    "scripts/gq_api.py": "cfc4f987a26639321c16980e02c2eb805c07b21d5ad358d94111b93c30d903a1",
-    "scripts/gq_connect.py": "ceda332fb571f0aef493b4d3f0fc02ed5d4127449f2ade8af4674044432d842e",
+    "scripts/gq_analysis.py": "3e971647fc6040b35a0045dfe7f784b743e101396f207a819b1abbb0cb520119",
+    "scripts/gq_api.py": "31f80a4021a17affb6fb9acc81d323033b6948bb52301df43b44dbd4d14e571b",
+    "scripts/gq_connect.py": "8b462046d0074a3213668446f02c08b85e3048a52471c0e0368784bf4ce37e3d",
     "scripts/gq_transport.py": "651b402749b96d81825ee664fd85078035057e81a6024edcdbf0f99a1a16ce94"
   },
   "license": "MIT",
   "license_file": "LICENSE",
   "schema_version": 1,
   "skill": "gq-analyze-feedback",
-  "version": "0.2.8-beta.33"
+  "version": "0.2.8-beta.38"
 }

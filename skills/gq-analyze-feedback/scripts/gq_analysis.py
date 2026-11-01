@@ -515,10 +515,148 @@ def _snapshot_json_constant(value):
     raise CalculationError("Snapshot JSON must not contain non-finite numbers.")
 
 
+def _snapshot_display_number(value, signed=False):
+    text = f"{value:.1f}".rstrip("0").rstrip(".") if value else "0"
+    return "+" + text if signed and value > 0 else text
+
+
+def _snapshot_display_cell(value):
+    return str(value).replace("|", "\\|").replace("\n", " ").replace("\r", " ")
+
+
+MONTH_NAMES = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
+
+
+def business_period(since, until):
+    first, last = date.fromisoformat(since), date.fromisoformat(until)
+    start = f"{MONTH_NAMES[first.month - 1]} {first.day}"
+    if first == last:
+        return start + f", {first.year}"
+    if first.year == last.year and first.month == last.month:
+        return start + f"–{last.day}, {last.year}"
+    if first.year == last.year:
+        return start + f"–{MONTH_NAMES[last.month - 1]} {last.day}, {last.year}"
+    return start + f", {first.year}–{MONTH_NAMES[last.month - 1]} {last.day}, {last.year}"
+
+
+def business_month(value):
+    parsed = date.fromisoformat(value + "-01")
+    return f"{MONTH_NAMES[parsed.month - 1]} {parsed.year}"
+
+
+def _business_month_gap(rows):
+    numbers = [int(row["period"][:4]) * 12 + int(row["period"][5:]) for row in rows]
+    return any(right - left != 1 for left, right in zip(numbers, numbers[1:]))
+
+
+def _business_score_pattern(rows):
+    available = [row for row in rows if row["nps"] is not None]
+    if not available:
+        return "No month shown has a recommendation score."
+    if len(available) < len(rows) or _business_month_gap(rows):
+        return "Not every month has a score, so these figures do not show an uninterrupted monthly trend."
+    scores = [round(row["nps"], 1) for row in available]
+    if len(scores) < 2:
+        return ""
+    changes = [right - left for left, right in zip(scores, scores[1:])]
+    if all(change == 0 for change in changes):
+        return "The scores stayed at about the same level."
+    if all(change >= 0 for change in changes):
+        return "The score increased across the months shown."
+    if all(change <= 0 for change in changes):
+        return "The score decreased across the months shown."
+    if len(scores) == 3 and scores[1] < scores[0] and scores[2] > scores[1]:
+        ending = "partly recovered, finishing below the first month's level" if scores[2] < scores[0] else "recovered to its starting level" if scores[2] == scores[0] else "rose above its starting level"
+        return "The score fell, then " + ending + "."
+    if len(scores) == 3 and scores[1] > scores[0] and scores[2] < scores[1]:
+        ending = "above" if scores[2] > scores[0] else "below" if scores[2] < scores[0] else "at"
+        return "The score rose, then fell, finishing " + ending + " its starting level."
+    return "The score moved up and down across the months shown."
+
+
+def business_recommendation_readout(score, responses, *, period=None, people=None, monthly=None, groups=None, selection_note=None):
+    """Render verified metric results; sample wording is a display cue, not a validity threshold."""
+    when = " for " + period if period else ""
+    if score is None:
+        return "No recommendation score is available" + when + ": there were no valid recommendation ratings."
+    sample = f"{responses} survey {'response' if responses == 1 else 'responses'}"
+    if type(people) is int and 0 < people <= responses:
+        sample += f" from {people} {'person' if people == 1 else 'people'}"
+    text = f"Your recommendation score (NPS){when} was {_snapshot_display_number(score)}, based on {sample}."
+    if selection_note:
+        text += "\n\n" + selection_note
+    rows = monthly or []
+    if rows:
+        lines = ["Month | NPS | Responses | Change", "--- | --- | --- | ---"]
+        previous = None
+        for row in rows:
+            value = row["nps"]
+            change = "—" if previous is None or value is None else _snapshot_display_number(value - previous, signed=True) + " points"
+            shown = "Not available" if value is None else _snapshot_display_number(value)
+            lines.append(f"{business_month(row['period'])} | {shown} | {row['responses']} | {change}")
+            previous = value
+        text += "\n\n" + "\n".join(lines)
+        pattern = _business_score_pattern(rows)
+        if pattern:
+            text += "\n\n" + pattern
+        counts = [row["responses"] for row in rows if row["nps"] is not None and row["responses"] > 0]
+        # This never suppresses a score or asserts a minimum required sample.
+        if counts and max(counts) <= 10:
+            low, high = min(counts), max(counts)
+            sample_size = str(low) if low == high else f"{low}–{high}"
+            unit = "response" if low == high == 1 else "responses"
+            text += f" With only {sample_size} {unit} behind each monthly score, treat these as early signals until more feedback is available."
+    elif groups:
+        lines = ["Group | NPS | Responses", "--- | --- | ---"]
+        lines += [f"{_snapshot_display_cell(row['group_value'])} | {_snapshot_display_number(row['nps'])} | {row['n']}" for row in groups]
+        text += "\n\n" + "\n".join(lines)
+    elif 0 < responses <= 10:
+        text += "\n\nThis is a small set of responses, so treat the score as an early signal and see whether it holds as more feedback comes in."
+    return text
+
+
+def snapshot_source_readout(result):
+    n = result["baseline"]["n"]
+    text = f"I used the {n} recommendation {'rating' if n == 1 else 'ratings'} in the feedback you provided."
+    if result.get("group_by") == "month":
+        text += " The monthly breakdown follows the month labels in that feedback."
+    elif result.get("groups"):
+        text += " The breakdown follows the groups in that feedback."
+    return text
+
+
+def snapshot_readout(result):
+    """Business display of computed snapshot results, without changing arithmetic."""
+    groups = result.get("groups", [])
+    chronological = result.get("group_by") == "month" and bool(groups)
+    if chronological:
+        try:
+            chronological = all(isinstance(group["group_value"], str)
+                and re.fullmatch(r"[0-9]{4}-[0-9]{2}", group["group_value"])
+                and date.fromisoformat(group["group_value"] + "-01") for group in groups)
+        except (ValueError, TypeError):
+            chronological = False
+    monthly = None
+    if chronological:
+        monthly = [{"period": group["group_value"], "nps": group["nps"], "responses": group["n"]}
+                   for group in sorted(groups, key=lambda group: group["group_value"])]
+    text = business_recommendation_readout(result["baseline"]["nps"], result["baseline"]["n"],
+                                            monthly=monthly, groups=groups if not chronological else None)
+    if result.get("scenarios"):
+        lines = ["Requested change | NPS | Change from original score", "--- | --- | ---"]
+        for scenario in result["scenarios"]:
+            lines.append(f"{_snapshot_display_cell(scenario['label'])} | "
+                         f"{_snapshot_display_number(scenario['result']['nps'])} | "
+                         f"{_snapshot_display_number(scenario['delta_nps'], signed=True)} points")
+        text += "\n\n" + "\n".join(lines)
+    return text
+
+
 def snapshot_main(argv):
     parser = argparse.ArgumentParser(description="Bounded NPS on an explicitly supplied snapshot; no dates, API or credentials.")
     parser.add_argument("--input", required=True, type=Path)
     parser.add_argument("--group-by", help="An actual observed field, such as month; does not invent dates or scope scenarios")
+    parser.add_argument("--details", action="store_true", help="Return full computed fields, source IDs and formulas; the default returns a business readout including any requested scenarios")
     args = parser.parse_args(argv)
     try:
         if not args.input.is_file():
@@ -529,7 +667,9 @@ def snapshot_main(argv):
             raise CalculationError("Snapshot input byte budget exceeded.")
         payload = json.loads(raw.decode("utf-8"), object_pairs_hook=_snapshot_json_pairs,
                              parse_constant=_snapshot_json_constant)
-        print(json.dumps(calculate_snapshot(payload, args.group_by), allow_nan=False))
+        result = calculate_snapshot(payload, args.group_by)
+        display = dict(result, response_count_unit="survey responses, not distinct people", readout=snapshot_readout(result), source_readout=snapshot_source_readout(result)) if args.details else {"state": "complete", "readout": snapshot_readout(result)}
+        print(json.dumps(display, allow_nan=False))
         return 0
     except CalculationError as error:
         print(json.dumps({"error": str(error)}))

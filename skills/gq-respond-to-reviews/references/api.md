@@ -50,7 +50,7 @@ The inspected public survey path does not apply the app's latest-feedback-per-co
 
 Other saved settings may also differ, including owner/import/completion-mode choices and rating predicates. Establish the effective choice from available authoritative context; an unknown setting is not proof that it is off. Local filtering is useful only when the required fields and complete broader group are available. Check the actual API capabilities before declaring a field unavailable. Do not use signed-in private app endpoints as a customer connector workaround.
 
-For a broad business question, give the supported analysis with a brief, relevant scope note. For an explicitly requested view that cannot be reproduced, preserve the user's intent: explain the business difference briefly and offer an export from that view or a clearly different supported analysis. Avoid technical filter inventories in the answer.
+For a broad business question, give the supported analysis and explain a scope limit only when it materially changes the business interpretation. The already-selected connection or environment is not, by itself, a new coverage gap. For an explicitly requested view that cannot be reproduced, preserve the user's intent: explain the business difference briefly and offer an export from that view or a clearly different supported analysis. Avoid technical filter inventories in the answer.
 
 ### Attempts and minimal reporting output
 
