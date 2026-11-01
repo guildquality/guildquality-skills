@@ -12,6 +12,8 @@ Determine where this task runs, what files and network it can access, and whethe
 
 An `.env` file is useful only when the selected runtime already has an explicit approved loader and the user has a private way to populate it. These helpers do not scan or automatically load `.env` files. Uploading one or setting a variable on a different computer does not configure the current task. Do not search unrelated folders or credential stores for a key.
 
+Existing reporting reads check the selected account binding while fetching. With a configured profile, use the requested reporting command directly; a separate persistent `preflight` update is not required before every read. Use `status` and `preflight` when establishing or diagnosing the connection. Never recreate a working connection to start a new business question.
+
 ## Customer setup: one explicit profile
 
 Resolve the installed skill directory from this client's actual skill registration. Keep the working directory in the user's private analysis workspace; do not use the installed skill folder for exports or reports. In the commands below, set `gq_skill_dir` to that verified absolute install path, for example:
@@ -38,7 +40,7 @@ Production explicitly uses `--kind production` and the fixed `https://www.guildq
 
 Setup prompts for the key with hidden input, refuses noninteractive/piped input and refuses overwriting existing files. The agent can prepare the command but must not ask the user to paste the key in chat or capture their entry. The helper creates private `token`, `environment.json`, and profile files beside the selected profile and records a separate state-directory path. These are **plaintext files protected by ownership/permissions, not an encrypted vault**: directory 0700, files 0600 on the supported POSIX path. Keep them outside skill packaging and sharing. If they already exist, inspect status and configuration; do not overwrite or regenerate a shared key as a connection test. Windows needs an approved private injection route rather than this POSIX setup fallback.
 
-Setup reads the account's accessible saved reports and asks the user to select an existing report in the same private terminal. If an expected marker is already independently known, supply both `--report-id ID --report-name 'Exact existing report name'`. Never invent a report name or create one just to make setup pass. Empty reports, a missing selection, or a mismatch leaves the connection unverified. The user selects account/scope; matching an actual report marker checks that binding but is not a root identity endpoint or proof of every permission.
+Setup reads the account's accessible saved reports and asks the user to select an existing report in the same private terminal. If an expected marker is already independently known, supply both `--report-id ID --report-name 'Exact existing report name'`. Never invent a report name or create one just to make setup pass. Empty reports, a missing selection, or a mismatch leaves the connection unverified. The user selects account/scope; matching an actual report marker checks that binding but is not a root identity endpoint or proof of every permission. That marker checks the connection; it does not automatically select the saved view or establish its reporting settings for every analysis.
 
 Then check current connectivity without entering the key again:
 

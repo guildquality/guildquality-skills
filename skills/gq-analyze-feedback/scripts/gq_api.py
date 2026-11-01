@@ -1,6 +1,7 @@
 """GuildQuality reporting-only client with explicit account grants and bounded reads."""
 import argparse
 import copy
+from datetime import datetime, timezone
 import hashlib
 import json
 import os
@@ -12,9 +13,9 @@ import time
 from urllib.parse import parse_qsl, urlencode, urlsplit
 import gq_transport as transport
 from gq_transport import ClientError
-VERSION = '0.2.8-beta.11'
+VERSION = '0.2.8-beta.33'
 READS = {'surveys', 'reviews', 'children', 'reports', 'team', 'custom-fields', 'project-user-roles', 'review-summary', 'contacts/opt-in-status'}
-SAFE_QUERY = {'since', 'until', 'dateFilter', 'orderBy', 'status', 'reportId', 'questions', 'filterByCompanyIds', 'page', 'contactEmails', 'projectIds', 'contactIds', 'isImported', 'archived'}
+SAFE_QUERY = {'since', 'until', 'dateFilter', 'orderBy', 'status', 'reportId', 'questions', 'filterByCompanyIds', 'page', 'contactEmails', 'projectIds', 'contactIds', 'isImported', 'archived', 'attempts'}
 SURVEY_STATUS_GROUPS = {'completed': frozenset({'Completed'}), 'in-progress': frozenset({'In progress'}), 'scheduled': frozenset({'Scheduled'}), 'abandoned': frozenset({'Abandoned'}), 'no-response': frozenset({'Abandoned', 'No response'})}
 
 def survey_status_labels(value):
@@ -186,6 +187,80 @@ def record_id(row):
 def owner(row):
     company = row.get('company')
     return row.get('companyId', company.get('id') if isinstance(company, dict) else None)
+MAX_ATTEMPTS_PER_SURVEY = 1000
+MAX_HIERARCHY_DEPTH = 32
+
+def attempt_timestamp(value):
+    """Validate the public attempt date without inferring a missing timezone."""
+    if not isinstance(value, str) or not value or len(value) > 80:
+        raise ClientError('Survey attempts require explicit timestamp strings.')
+    text = value
+    for (suffix, offset) in ((' EDT', '-04:00'), (' EST', '-05:00'), (' UTC', '+00:00'), (' GMT', '+00:00')):
+        if text.endswith(suffix):
+            text = text[:-len(suffix)] + offset
+            break
+    try:
+        instant = datetime.fromisoformat(text.replace('Z', '+00:00'))
+        if instant.tzinfo is None:
+            raise ValueError()
+    except ValueError:
+        raise ClientError('Survey attempts require valid dates with explicit offsets or supported source timezones.') from None
+    return value
+
+def normalize_attempts(row, required=False):
+    """Keep documented attempt facts; an omitted list is never an empty list."""
+    if 'attempts' not in row:
+        if required:
+            raise ClientError('Requested survey attempts were omitted; attempt coverage is unknown.')
+        return
+    attempts = row['attempts']
+    if not isinstance(attempts, list) or len(attempts) > MAX_ATTEMPTS_PER_SURVEY:
+        raise ClientError('Survey attempts must be a bounded array.')
+    normalized = []
+    for item in attempts:
+        if not isinstance(item, dict) or 'type' not in item or 'createdAt' not in item or (item['type'] is not None and (not isinstance(item['type'], str) or len(item['type']) > 100)):
+            raise ClientError('Survey attempts require a nullable type and a timestamp.')
+        normalized.append({'type': item['type'], 'createdAt': attempt_timestamp(item['createdAt'])})
+    row['attempts'] = normalized
+
+def normalize_children(payload, allowed_company_ids, max_nodes):
+    """Normalize API nodes without claiming location roles or absent child links."""
+    if isinstance(payload, dict):
+        nodes = payload.get('data')
+        links = payload.get('links')
+        if links is not None and (not isinstance(links, dict) or 'next' not in links or links['next'] is not None):
+            raise ClientError('Hierarchy response has unknown or partial continuation; rows withheld.')
+        meta = payload.get('meta')
+        if isinstance(meta, dict) and any((key in meta for key in ('current_page', 'last_page', 'next_page_url'))):
+            raise ClientError('Unexpected paginated hierarchy response; rows withheld.')
+    else:
+        nodes = payload
+    if not isinstance(nodes, list):
+        raise ClientError('Hierarchy response must contain an array of API company nodes.')
+    allowed = {str(value) for value in allowed_company_ids}
+    (result, ids, seen, missing) = ([], [], set(), 0)
+    stack = [(row, result, 1) for row in reversed(nodes)]
+    while stack:
+        (row, destination, depth) = stack.pop()
+        if depth > MAX_HIERARCHY_DEPTH or len(ids) >= max_nodes:
+            raise ClientError('Hierarchy response exceeds its node or depth budget; rows withheld.')
+        if not isinstance(row, dict) or isinstance(row.get('id'), bool) or (not isinstance(row.get('id'), (str, int))) or (str(row['id']) not in allowed):
+            raise ClientError('Hierarchy includes an unknown account or an account outside the explicit grant; rows withheld.')
+        identifier = str(row['id'])
+        if identifier in seen:
+            raise ClientError('Hierarchy repeats a company identity; rows withheld.')
+        seen.add(identifier)
+        ids.append(row['id'])
+        normalized = {key: value for (key, value) in row.items() if key != 'children'}
+        destination.append(normalized)
+        if 'children' not in row:
+            missing += 1
+            continue
+        if not isinstance(row['children'], list):
+            raise ClientError('Hierarchy child links must be arrays; rows withheld.')
+        normalized['children'] = []
+        stack.extend(((child, normalized['children'], depth + 1) for child in reversed(row['children'])))
+    return (result, ids, missing)
 
 class Client:
 
@@ -226,6 +301,8 @@ class Client:
                     raise ClientError('Requested company is outside the account grant.')
             if 'reportId' in params and params['reportId'] not in [str(v) for v in self.env.get('allowed_report_ids', [])]:
                 raise ClientError('Saved report is outside the vetted cohort grant.')
+            if 'attempts' in params and params['attempts'] not in ('0', '1'):
+                raise ClientError('Attempt inclusion must be 0 or 1.')
             if 'questions' in params and params['questions'] not in ('0', '1'):
                 raise ClientError('Question inclusion must be 0 or 1.')
             fields = {'reviews': {'reviewedAt', 'lastActivityAt'}, 'surveys': {'endedAt', 'sendAt', 'createdAt', 'updatedAt', 'lastActivityAt'}}
@@ -233,7 +310,7 @@ class Client:
             for key in ('dateFilter', 'orderBy'):
                 if key in params and params[key] not in fields.get(resource, set()):
                     raise ClientError('Unsupported date or ordering field; refusing a potentially ignored filter.')
-            admitted = {'surveys': {'since', 'until', 'dateFilter', 'orderBy', 'status', 'reportId', 'questions', 'filterByCompanyIds', 'page', 'projectIds', 'contactIds', 'isImported'}, 'reviews': {'since', 'until', 'dateFilter', 'filterByCompanyIds', 'page'}, 'contacts': {'contactEmails', 'since', 'until'}, 'survey-templates': {'archived'}}
+            admitted = {'surveys': {'since', 'until', 'dateFilter', 'orderBy', 'status', 'reportId', 'questions', 'filterByCompanyIds', 'page', 'projectIds', 'contactIds', 'isImported', 'attempts'}, 'reviews': {'since', 'until', 'dateFilter', 'filterByCompanyIds', 'page'}, 'contacts': {'contactEmails', 'since', 'until'}, 'survey-templates': {'archived'}}
             if set(params) - admitted.get(resource, set()):
                 raise ClientError("Query parameter is not admitted by this endpoint's public contract.")
             if 'status' in params:
@@ -324,6 +401,8 @@ class Client:
                     explicit.append(row['company']['id'])
                 if not isinstance(row, dict) or response_owner is None or str(response_owner) not in allowed or any((value is None or str(value) != str(response_owner) for value in explicit)):
                     raise ClientError('Response has an unknown or unauthorized owner; rows withheld.')
+                if resource == 'surveys':
+                    normalize_attempts(row, required=params.get('attempts') == '1')
                 if inferred:
                     self._inferred_survey_ids.add(str(record_id(row)))
                 target = urlsplit(path).path[len('/company-api/v3'):].strip('/').split('/')
@@ -339,24 +418,34 @@ class Client:
                     if field in params and str((row.get(container) or {}).get('id')) not in params[field]:
                         raise ClientError('Response does not match the selected record cohort; rows withheld.')
         if resource == 'children':
+            return normalize_children(payload, self.env['allowed_company_ids'], self.env['limits']['max_rows'])
 
-            def walk(items):
-                for row in items:
-                    if not isinstance(row, dict) or str(row.get('id')) not in {str(v) for v in self.env['allowed_company_ids']}:
-                        raise ClientError('Hierarchy includes an account outside the explicit grant; rows withheld.')
-                    walk(row.get('children', []))
-            walk(rows)
+    def _scoped_list_read(self, url):
+        """Use the existing explicit grant as a list filter, never token discovery."""
+        parsed = urlsplit(url)
+        if parsed.path not in ('/company-api/v3/surveys', '/company-api/v3/reviews'):
+            return (url, {})
+        params = query_parameters(parsed.query)
+        explicit = 'filterByCompanyIds' in params
+        values = params['filterByCompanyIds'].split(',') if explicit else [str(value) for value in self.env['allowed_company_ids']]
+        if not values or len(values) > 100 or len(values) != len(set(values)) or any((not re.fullmatch('[1-9][0-9]{0,17}', value) for value in values)):
+            raise ClientError('Company scope requires a bounded unique list of positive numeric IDs.')
+        if not explicit:
+            query = parsed.query + ('&' if parsed.query else '') + urlencode({'filterByCompanyIds': ','.join(values)})
+            url = parsed._replace(query=query).geturl()
+        return (url, {'applied_company_ids': [int(value) for value in values], 'company_scope_source': 'explicit_filter' if explicit else 'profile_default'})
 
     def get(self, path, all_pages=False):
         self._inferred_survey_ids = set()
-        if not self.verified or (self.env.get('survey_owner_binding') and urlsplit(self.url(path)).path.removeprefix('/company-api/v3/').split('/')[0] == 'surveys'):
+        (url, applied_scope) = self._scoped_list_read(self.url(path))
+        self.authorize('GET', url)
+        if not self.verified or (self.env.get('survey_owner_binding') and urlsplit(url).path.removeprefix('/company-api/v3/').split('/')[0] == 'surveys'):
             self.preflight()
         task_owner_proof = copy.deepcopy(self._survey_owner_proof)
-        url = self.url(path)
-        self.authorize('GET', url)
         original = urlsplit(url)
         original_query = cohort_query(original.query)
         result = {'data': [], 'pages_fetched': 0, 'pagination_complete': None, 'stop_reason': None, 'source_ids': [], 'environment_id': self.env['id']}
+        result.update(applied_scope)
         seen = set()
         seen_ids = set()
         start = time.monotonic()
@@ -372,12 +461,19 @@ class Client:
             seen.add(url)
             try:
                 payload = self._request('GET', url, timeout=min(remaining, budget['request_timeout']))
+                if original.path.endswith('/children'):
+                    (nodes, node_ids, missing_children) = self.check_rows(url, payload)
+                    result.update(data=nodes, source_ids=node_ids, pages_fetched=1, pagination_complete=True, stop_reason='nonpaginated_response', hierarchy_node_count=len(node_ids), nodes_without_children_field=missing_children, hierarchy_basis='API company nodes and returned child links; not verified physical-location roles or a complete account hierarchy')
+                    break
                 if isinstance(payload, dict) and (isinstance(payload.get('data'), (dict, list)) or record_id(payload) is not None):
                     self.check_rows(url, payload)
                 elif urlsplit(url).path.endswith(('/surveys', '/reviews')) and (not (isinstance(payload, dict) and isinstance(payload.get('data'), list))):
                     raise ClientError('Unexpected record response shape; rows withheld.')
             except ClientError as error:
                 result.update(pagination_complete=False, stop_reason='request_failed', error=str(error))
+                code = getattr(error, 'code', None)
+                if isinstance(code, str) and code in transport.ERROR_DIAGNOSTICS:
+                    result['error_code'] = code
                 break
             result['pages_fetched'] += 1
             rows = records(payload)
@@ -424,7 +520,8 @@ class Client:
                 result.update(stop_reason='unsafe_next_link', error=str(error))
                 break
         data = result['data']
-        result['source_ids'] = [record_id(r) for r in (data if isinstance(data, list) else records(data)) if isinstance(r, dict) and record_id(r) is not None]
+        if 'hierarchy_node_count' not in result:
+            result['source_ids'] = [record_id(r) for r in (data if isinstance(data, list) else records(data)) if isinstance(r, dict) and record_id(r) is not None]
         inferred_ids = [identifier for identifier in result['source_ids'] if str(identifier) in self._inferred_survey_ids]
         detail_data = data.get('data', data) if isinstance(data, dict) else None
         if isinstance(detail_data, dict) and record_id(detail_data) is not None and (str(record_id(detail_data)) in self._inferred_survey_ids):
@@ -432,6 +529,7 @@ class Client:
         if inferred_ids:
             result['survey_owner_attribution'] = dict(task_owner_proof, inferred_source_ids=inferred_ids)
         result['elapsed_seconds'] = round(time.monotonic() - start, 6)
+        result['retrieved_at'] = datetime.now(timezone.utc).isoformat()
         return result
 
 def main(argv=None):

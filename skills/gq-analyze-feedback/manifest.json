@@ -1,18 +1,18 @@
 {
   "files": {
     "LICENSE": "d33791e4cea4b8cc71eace2e10cbc61ba7f89318ad8e633b03a05d2c3ac5d140",
-    "SKILL.md": "467457ddd6f446f3350c323f109b30c6260701e6ad6cda690c7d9b6965a889b0",
-    "references/analysis.md": "3bd6eec2fec9277e5c669c6aca0c147065d3d372f8489b61809daddada117a34",
-    "references/api.md": "37bbdd76c1aadc842081d5c7814e363f4034956ea908dfc69bb0c1404facd834",
-    "references/authentication.md": "9bb428661d65298e97488802e0316f09487554d4771a83c4f6eb915343812adf",
-    "scripts/gq_analysis.py": "d6162d27baad5fbb7902e5c039f3485e02b3949b35d559566a38401a07769e27",
-    "scripts/gq_api.py": "03efff9fbac1c2e2aab8d8662c87e7e42d9ed8bae781c6d1111f963296ac0c80",
-    "scripts/gq_connect.py": "75e9a060c045d6fd893c4df5fa641c22ee06461a2e2c259cd91bfcfcc1c7f8af",
-    "scripts/gq_transport.py": "d1cb97038ce46a593d69d86c1dd9a4899f2fbbb290f196048a99e874c36bbb87"
+    "SKILL.md": "e6bc783c4f18d86ab7fda1dcabd7b175149fd30c60431d89984fccb6e68d76c4",
+    "references/analysis.md": "cec002b2cee0856c38cf6834d6ebf5fe00ff5b48ed68328b38b9a8eab251cf8d",
+    "references/api.md": "77b40770b165dac4abd07d21d541d05b4c72e33ade1065e24e6e4442d084c37c",
+    "references/authentication.md": "628d331fd86655a6cca75e641bf64b910ce3a06e80e53144af55467edd6b6d1f",
+    "scripts/gq_analysis.py": "a476251b314cf8c3e0bd314ac2980acc85e806ee0c8530ade21806cf26087a4b",
+    "scripts/gq_api.py": "cfc4f987a26639321c16980e02c2eb805c07b21d5ad358d94111b93c30d903a1",
+    "scripts/gq_connect.py": "ceda332fb571f0aef493b4d3f0fc02ed5d4127449f2ade8af4674044432d842e",
+    "scripts/gq_transport.py": "651b402749b96d81825ee664fd85078035057e81a6024edcdbf0f99a1a16ce94"
   },
   "license": "MIT",
   "license_file": "LICENSE",
   "schema_version": 1,
   "skill": "gq-analyze-feedback",
-  "version": "0.2.8-beta.11"
+  "version": "0.2.8-beta.33"
 }

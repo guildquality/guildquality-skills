@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Bounded arithmetic on retrieved survey records; no network or credential access."""
 import argparse
-from datetime import date, datetime
+from datetime import date, datetime, timezone as datetime_timezone
+from fractions import Fraction
 import json
 import math
 from pathlib import Path
 import re
+import sys
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 
@@ -13,12 +15,9 @@ class CalculationError(ValueError):
     pass
 
 
-def local_day(value, timezone):
-    if not value:
-        return None
+def source_timestamp(value):
+    """Parse an actual aware source instant; never invent a time or offset."""
     text = str(value)
-    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", text):
-        return date.fromisoformat(text)
     for suffix, offset in ((" EDT", "-04:00"), (" EST", "-05:00"), (" UTC", "+00:00"), (" GMT", "+00:00")):
         if text.endswith(suffix):
             text = text[:-len(suffix)] + offset
@@ -26,10 +25,66 @@ def local_day(value, timezone):
     try:
         instant = datetime.fromisoformat(text.replace("Z", "+00:00"))
         if instant.tzinfo is None:
-            raise CalculationError("Timestamp needs an explicit offset or supported source timezone.")
-        return instant.astimezone(ZoneInfo(timezone)).date()
+            raise ValueError()
+        return instant
+    except ValueError:
+        raise CalculationError("Timestamp needs a valid explicit offset or supported source timezone.") from None
+
+
+def local_day(value, timezone):
+    if not value:
+        return None
+    text = str(value)
+    try:
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", text):
+            return date.fromisoformat(text)
+        return source_timestamp(value).astimezone(ZoneInfo(timezone)).date()
     except (ValueError, ZoneInfoNotFoundError):
         raise CalculationError("Unsupported date/timezone in selected source records.") from None
+
+
+def selection_id(value):
+    if isinstance(value, bool) or not isinstance(value, (int, str)) or not re.fullmatch(r"[1-9][0-9]{0,17}", str(value)):
+        raise CalculationError("Latest-in-period selection needs unambiguous positive numeric survey and contact IDs.")
+    return int(value)
+
+
+def latest_completed_per_contact(rows, complete):
+    """Choose within the already filtered cohort, before question eligibility."""
+    groups = {}
+    for row in rows:
+        identifiers = []
+        if "contact" in row:
+            if not isinstance(row["contact"], dict) or "id" not in row["contact"]:
+                raise CalculationError("Latest-in-period selection requires a stable contact ID on every relevant completed survey.")
+            identifiers.append(selection_id(row["contact"]["id"]))
+        if "contactId" in row:
+            identifiers.append(selection_id(row["contactId"]))
+        if not identifiers or len(set(identifiers)) != 1:
+            raise CalculationError("Latest-in-period selection requires matching, nonmissing contact IDs.")
+        contact = identifiers[0]
+        key = (source_timestamp(row["endedAt"]), selection_id(row["id"]))
+        group = groups.setdefault(contact, {"rows": [], "winner": row, "key": key})
+        group["rows"].append(row)
+        if key > group["key"]:
+            group.update(winner=row, key=key)
+    winners = sorted((group["winner"] for group in groups.values()), key=lambda row: selection_id(row["id"]))
+    metadata = {
+        "selection_policy": "Latest completed survey per supplied stable contact ID within the selected period, after import policy; not the app's global-latest selection",
+        "selection_complete": complete is True,
+        "selection_coverage_basis": "Completeness applies only to the supplied relevant source queries, not undiscovered account history or locations",
+        "selection_input_completed_count": len(rows),
+        "selection_contact_count": len(groups),
+        "selection_excluded_older_count": len(rows) - len(winners),
+        "selection_source_ids": [row["id"] for row in winners],
+        "selection_tie_break": "Latest aware endedAt instant, then larger numeric survey ID",
+        "selection_group_counts": [{"contact_id": contact, "completed_survey_count": len(group["rows"]),
+                                    "source_ids": sorted((row["id"] for row in group["rows"]), key=selection_id),
+                                    "selected_source_id": group["winner"]["id"],
+                                    "selected_ended_at": group["winner"]["endedAt"]}
+                                   for contact, group in sorted(groups.items())],
+    }
+    return winners, metadata
 
 
 def numeric_rating(value):
@@ -44,10 +99,144 @@ def numeric_rating(value):
     return int(value)
 
 
+def contact_identity(row):
+    """Normalize only verified numeric identity aliases; never guess from names."""
+    values, unknown = [], None
+    if "contact" in row:
+        contact = row["contact"]
+        if not isinstance(contact, dict) or "id" not in contact:
+            unknown = "missing" if contact is None or contact == {} else "invalid"
+        else:
+            values.append(contact["id"])
+    if "contactId" in row:
+        values.append(row["contactId"])
+    identifiers = []
+    for value in values:
+        if value is None or value == "":
+            unknown = "missing"
+            continue
+        try:
+            identifiers.append(selection_id(value))
+        except CalculationError:
+            unknown = "invalid"
+    if len(set(identifiers)) > 1:
+        return {"state": "conflicting"}
+    if unknown or not identifiers:
+        return {"state": unknown or "missing"}
+    return {"state": "known", "id": identifiers[0]}
+
+
+def timestamp_evidence(value, timezone):
+    """Keep source events separate; optional unknown timing never invents dates."""
+    if value is None or value == "":
+        return {"state": "missing"}
+    try:
+        if isinstance(value, str) and re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value):
+            return {"state": "date_only", "source_date": date.fromisoformat(value).isoformat()}
+        instant = source_timestamp(value)
+        local = instant.astimezone(ZoneInfo(timezone))
+        return {"state": "aware", "source": value,
+                "utc": instant.astimezone(datetime_timezone.utc).isoformat(),
+                "local": local.isoformat(), "local_date": local.date().isoformat()}
+    except (ValueError, TypeError, OverflowError, ZoneInfoNotFoundError):
+        return {"state": "invalid"}
+
+
+def _evidence_id_key(value):
+    try:
+        return (0, selection_id(value), type(value).__name__)
+    except CalculationError:
+        return (1, type(value).__name__, str(value))
+
+
+def add_record_evidence(result, candidates, timezone, question_id=None):
+    """Private evidence for the exact calculation cohort, not additional history.
+
+    Contact counts use final metric-selected records. Candidate evidence can
+    additionally contain excluded older winners or ineligible numeric answers.
+    sendAt records sending; endedAt alone never proves a completed response.
+    """
+    metric = result["metric"]
+    selected = set(result["cohort_source_ids"] if metric == "response-rate" else result["source_ids"])
+    observed_completed = set(result.get("completed_source_ids", []))
+    winners = {group["contact_id"]: group["selected_source_id"]
+               for group in result.get("selection_group_counts", [])}
+    records, groups, unknown, conflicting, eligible_ratings = [], {}, 0, 0, 0
+    for row in sorted(candidates, key=lambda item: _evidence_id_key(item["id"])):
+        identity = contact_identity(row)
+        is_selected = row["id"] in selected
+        completed = str(row.get("status", "")).lower() == "completed"
+        record = {"survey_id": row["id"], "contact": identity, "status": row.get("status"),
+                  "isImported": row.get("isImported") if type(row.get("isImported")) is bool else None,
+                  "import_eligible": True, "selected_for_metric": is_selected,
+                  "sendAt": timestamp_evidence(row.get("sendAt"), timezone),
+                  "endedAt": timestamp_evidence(row.get("endedAt"), timezone)}
+        if completed and record["endedAt"]["state"] == "aware":
+            record["completed_local_date"] = record["endedAt"]["local_date"]
+        if metric == "response-rate":
+            record["completed_in_observation"] = row["id"] in observed_completed
+        if metric == "nps":
+            questions = row.get("questions")
+            answers = [item for item in questions if isinstance(item, dict)
+                       and str(item.get("questionId")) == str(question_id)] if isinstance(questions, list) else []
+            rating = None
+            if len(answers) == 1 and answers[0].get("ratingScale") == "0-10":
+                try:
+                    rating = numeric_rating(answers[0].get("rating"))
+                except (TypeError, ValueError, OverflowError):
+                    pass
+            record.update(question_id=question_id, rating=rating, rating_eligible=rating is not None,
+                          rating_category=None if rating is None else "promoter" if rating >= 9 else "passive" if rating >= 7 else "detractor")
+            eligible_ratings += rating is not None
+        if winners:
+            winner = winners.get(identity.get("id"))
+            record.update(selected_contact_winner_id=winner,
+                          selected_for_contact=row["id"] == winner,
+                          excluded_by_latest=row["id"] != winner)
+        records.append(record)
+        if not is_selected:
+            continue
+        if identity["state"] == "known":
+            group = groups.setdefault(identity["id"], {"contact_id": identity["id"], "survey_ids": [],
+                                                      "record_count": 0, "completed_record_count": 0})
+            group["survey_ids"].append(row["id"])
+            group["record_count"] += 1
+            group["completed_record_count"] += completed
+        elif identity["state"] == "conflicting":
+            conflicting += 1
+        else:
+            unknown += 1
+    summary = {"cohort_basis": "Final records selected for this metric; response-rate counts use its sent denominator cohort",
+               "candidate_record_count": len(candidates), "selected_record_count": len(selected),
+               "known_contact_record_count": sum(group["record_count"] for group in groups.values()),
+               "distinct_known_contact_count": len(groups), "unknown_contact_record_count": unknown,
+               "conflicting_contact_record_count": conflicting,
+               "identity_complete": unknown == 0 and conflicting == 0,
+               "repeated_contact_groups": [group for _, group in sorted(groups.items()) if group["record_count"] > 1]}
+    if metric == "nps":
+        summary["candidate_records_with_eligible_rating"] = eligible_ratings
+    if metric == "response-rate":
+        summary["completed_in_observation_count"] = len(observed_completed)
+    result.update(contact_summary=summary, record_evidence=records)
+    return result
+
+
 def calculate(rows, metric="nps", question_id=None, since=None, until=None,
-              timezone="America/New_York", complete=False, exclude_imported=True):
+              timezone="America/New_York", complete=False, exclude_imported=True,
+              observation="period-end", denominator="sent-status", observed_as_of=None,
+              latest_in_period=False):
     if type(exclude_imported) is not bool:
         raise CalculationError("Imported-survey policy must be explicit boolean metadata.")
+    if type(latest_in_period) is not bool or (latest_in_period and metric not in ("nps", "count")):
+        raise CalculationError("Latest-in-period selection is an explicit boolean option for NPS or completed count only.")
+    if observation not in ("period-end", "current") or denominator not in ("sent-status", "attempted"):
+        raise CalculationError("Unsupported response-rate observation or denominator.")
+    if metric != "response-rate" and (observation != "period-end" or denominator != "sent-status" or observed_as_of is not None):
+        raise CalculationError("Response-rate options apply only to response-rate calculations.")
+    if observed_as_of is not None:
+        if not isinstance(observed_as_of, str) or "T" not in observed_as_of or len(observed_as_of) > 80:
+            raise CalculationError("Observation time requires an explicit timestamp and timezone.")
+        local_day(observed_as_of, timezone)
     if not isinstance(rows, list) or len(rows) > 10000 or metric not in ("nps", "response-rate", "count"):
         raise CalculationError("Unsupported calculation or excessive input.")
     try:
@@ -58,7 +247,10 @@ def calculate(rows, metric="nps", question_id=None, since=None, until=None,
     if upper < lower:
         raise CalculationError("Calculation period ends before it starts.")
     ids = [row.get("id") for row in rows if isinstance(row, dict)]
-    if len(ids) != len(rows) or None in ids or len(set(ids)) != len(ids):
+    if len(ids) != len(rows) or None in ids:
+        raise CalculationError("Survey records require unique stable source IDs.")
+    identity_keys = [selection_id(value) for value in ids] if latest_in_period else ids
+    if len(set(identity_keys)) != len(ids):
         raise CalculationError("Survey records require unique stable source IDs.")
     def in_period(value):
         day = local_day(value, timezone)
@@ -76,23 +268,94 @@ def calculate(rows, metric="nps", question_id=None, since=None, until=None,
             base["import_policy"] = "include all selected surveys; import status is unknown for some records"
         return [row for row in selected if not exclude_imported or row["isImported"] is False]
     if metric == "response-rate":
-        cohort = apply_import_policy([r for r in rows
-                  if str(r.get("status", "")).lower().replace(" ", "-") in ("in-progress", "completed", "abandoned", "no-response")
-                  and in_period(r.get("sendAt"))])
-        completed = [r for r in cohort if str(r.get("status", "")).lower() == "completed"
-                     and local_day(r.get("endedAt"), timezone) is not None
-                     and local_day(r["endedAt"], timezone) <= upper]
+        sent_statuses = ("in-progress", "completed", "abandoned", "no-response")
+        selected, unknown_cohort = [], 0
+        for row in rows:
+            status = str(row.get("status", "")).lower().replace(" ", "-")
+            if status == "scheduled":
+                continue
+            if not row.get("sendAt"):
+                unknown_cohort += 1
+                continue
+            if not in_period(row["sendAt"]):
+                continue
+            if status not in sent_statuses:
+                unknown_cohort += 1
+                continue
+            selected.append(row)
+        if unknown_cohort and (observation != "period-end" or denominator != "sent-status"):
+            raise CalculationError("Response-rate cohort has missing status or send-date coverage.")
+        cohort = apply_import_policy(selected)
+        evidence_rows = list(cohort)
+        no_attempt_ids = []
+        if denominator == "attempted":
+            eligible = []
+            for row in cohort:
+                attempts = row.get("attempts")
+                if not isinstance(attempts, list) or len(attempts) > 1000:
+                    raise CalculationError("Attempted response rate requires a bounded explicit attempts array for every selected survey; missing coverage is unknown, not zero attempts.")
+                qualifies = False
+                for attempt in attempts:
+                    if (not isinstance(attempt, dict) or "type" not in attempt or "createdAt" not in attempt
+                            or (attempt["type"] is not None and (not isinstance(attempt["type"], str) or len(attempt["type"]) > 100))
+                            or not isinstance(attempt["createdAt"], str) or "T" not in attempt["createdAt"] or len(attempt["createdAt"]) > 80):
+                        raise CalculationError("Attempt records require a nullable type and an explicit timestamp.")
+                    attempt_day = local_day(attempt["createdAt"], timezone)
+                    qualifies = qualifies or observation == "current" or attempt_day <= upper
+                if qualifies:
+                    eligible.append(row)
+                else:
+                    no_attempt_ids.append(row["id"])
+            cohort = eligible
+        completed, missing_end_ids = [], []
+        for row in cohort:
+            if str(row.get("status", "")).lower() != "completed":
+                continue
+            if not row.get("endedAt"):
+                missing_end_ids.append(row["id"])
+                if observation == "current":
+                    completed.append(row)
+                continue
+            ended_day = local_day(row["endedAt"], timezone)
+            if observation == "current" or ended_day <= upper:
+                completed.append(row)
         base.update(sent_count=len(cohort), cohort_completed_count=len(completed),
                     response_rate=100 * len(completed) / len(cohort) if cohort else None,
                     cohort_source_ids=sorted(r["id"] for r in cohort),
                     completed_source_ids=sorted(r["id"] for r in completed),
-                    observation_cutoff=until)
-        return base
-    completed = apply_import_policy([r for r in rows if str(r.get("status", "")).lower() == "completed"
-                                    and in_period(r.get("endedAt"))])
+                    observation=observation, observed_as_of=observed_as_of,
+                    observation_cutoff=until if observation == "period-end" else None,
+                    status_basis="Current status in supplied records; historical status transitions are not reconstructed",
+                    denominator=denominator,
+                    attempt_basis="Presence of an outreach-attempt record; not proof of delivery" if denominator == "attempted" else None,
+                    attempt_observation_cutoff=until if denominator == "attempted" and observation == "period-end" else None,
+                    excluded_no_attempt_count=len(no_attempt_ids), excluded_no_attempt_source_ids=sorted(no_attempt_ids),
+                    attempt_coverage="explicit for selected cohort" if denominator == "attempted" else "not used",
+                    cohort_fields_unknown_count=unknown_cohort,
+                    completion_date_unknown_count=len(missing_end_ids),
+                    observation_complete=not unknown_cohort and (observation == "current" or not missing_end_ids))
+        return add_record_evidence(base, evidence_rows, timezone)
+    candidates = [row for row in rows if str(row.get("status", "")).lower() == "completed"]
+    if latest_in_period:
+        for row in rows:
+            if exclude_imported and row.get("isImported") is True:
+                continue
+            status = str(row.get("status", "")).lower().replace(" ", "-")
+            if status not in ("completed", "scheduled", "in-progress", "abandoned", "no-response"):
+                if not row.get("endedAt") or in_period(row["endedAt"]):
+                    raise CalculationError("Latest-in-period selection needs known lifecycle status for potentially relevant records.")
+        candidates = [row for row in candidates if not (exclude_imported and row.get("isImported") is True)]
+        if any(not row.get("endedAt") for row in candidates):
+            raise CalculationError("Latest-in-period selection cannot establish the period without completion timestamps.")
+    completed = apply_import_policy([row for row in candidates if in_period(row.get("endedAt"))])
+    evidence_rows = list(completed)
+    if latest_in_period:
+        completed, selection = latest_completed_per_contact(completed, complete)
+        base.update(selection)
+    source_id_key = selection_id if latest_in_period else None
     if metric == "count":
-        base.update(completed_count=len(completed), source_ids=sorted(r["id"] for r in completed))
-        return base
+        base.update(completed_count=len(completed), source_ids=sorted((r["id"] for r in completed), key=source_id_key))
+        return add_record_evidence(base, evidence_rows, timezone)
     if question_id is None:
         raise CalculationError("NPS requires the verified recommendation question ID.")
     values = []
@@ -105,15 +368,179 @@ def calculate(rows, metric="nps", question_id=None, since=None, until=None,
             values.append((row["id"], rating))
     promoters = sum(v >= 9 for _, v in values)
     detractors = sum(v <= 6 for _, v in values)
+    n = len(values)
+    exact_score = Fraction(100 * (promoters - detractors), n) if n else None
     base.update(nps=100 * (promoters - detractors) / len(values) if values else None,
+                nps_calculation=f"100 * ({promoters} - {detractors}) / {n} = {exact_score}" if n else None,
                 n=len(values), promoters=promoters, passives=len(values)-promoters-detractors,
-                detractors=detractors, source_ids=sorted(i for i, _ in values),
+                detractors=detractors, source_ids=sorted((i for i, _ in values), key=source_id_key),
                 excluded_completed_count=len(completed)-len(values),
                 question_id=question_id)
-    return base
+    return add_record_evidence(base, evidence_rows, timezone, question_id)
 
+
+
+SNAPSHOT_MAX_BYTES = 16_000_000
+SNAPSHOT_MAX_RECORDS = 10_000
+SNAPSHOT_MAX_GROUPS = 200
+SNAPSHOT_MAX_SCENARIOS = 50
+
+
+def _snapshot_text(value, limit, diagnostic):
+    if type(value) is not str or not value.strip() or len(value) > limit:
+        raise CalculationError(diagnostic)
+    return value
+
+
+def _snapshot_id(value):
+    if type(value) is int and 0 <= value <= 2**63 - 1:
+        return (int, value)
+    if (type(value) is str and value and value == value.strip() and len(value) <= 256
+            and all(ord(c) >= 32 for c in value)):
+        return (str, value)
+    raise CalculationError("Snapshot records and scenarios need stable string or nonnegative integer source IDs.")
+
+
+def _snapshot_rating(value):
+    if type(value) is not int or not 0 <= value <= 10:
+        raise CalculationError("Snapshot ratings must be integer numbers from 0 through 10.")
+    return value
+
+
+def _snapshot_summary(rows, include_ids=True):
+    n = len(rows)
+    promoters = sum(row["rating"] >= 9 for row in rows)
+    passives = sum(7 <= row["rating"] <= 8 for row in rows)
+    detractors = sum(row["rating"] <= 6 for row in rows)
+    if promoters + passives + detractors != n:
+        raise CalculationError("Snapshot category counts do not reconcile to the selected cohort.")
+    exact_score = Fraction(100 * (promoters - detractors), n) if n else None
+    result = {"n": n, "promoters": promoters, "passives": passives, "detractors": detractors,
+              "nps": 100 * (promoters - detractors) / n if n else None,
+              "nps_calculation": f"100 * ({promoters} - {detractors}) / {n} = {exact_score}" if n else None}
+    if include_ids:
+        result["source_ids"] = [row["id"] for row in rows]
+    return result
+
+
+def calculate_snapshot(payload, group_by=None):
+    """NPS for an explicitly supplied cohort; no dates or live/API policies inferred."""
+    if (type(payload) is not dict or not {"cohort", "recommendation", "responses"} <= set(payload)
+            or set(payload) - {"cohort", "recommendation", "responses", "scenarios"}):
+        raise CalculationError("Snapshot needs only cohort, recommendation, responses and optional requested scenarios.")
+    cohort = _snapshot_text(payload["cohort"], 1000, "Snapshot needs an explicit supplied-cohort description.")
+    recommendation = payload["recommendation"]
+    if (type(recommendation) is not dict or set(recommendation) != {"verified", "scale", "basis"}
+            or recommendation["verified"] is not True or recommendation["scale"] != "0-10"):
+        raise CalculationError("Snapshot NPS requires a verified genuine 0-10 recommendation definition and its source basis.")
+    _snapshot_text(recommendation["basis"], 2000, "Snapshot recommendation definition needs a nonempty source basis.")
+    rows = payload["responses"]
+    if type(rows) is not list or len(rows) > SNAPSHOT_MAX_RECORDS:
+        raise CalculationError("Snapshot responses must be a list of at most 10000 records.")
+    if group_by is not None and (type(group_by) is not str or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]{0,63}", group_by)):
+        raise CalculationError("Snapshot grouping requires one actual bounded field name.")
+    by_id, seen_ids, groups = {}, set(), {}
+    for row in rows:
+        if type(row) is not dict or "id" not in row or "rating" not in row:
+            raise CalculationError("Every snapshot response needs its actual source id and rating.")
+        identity = _snapshot_id(row["id"])
+        # Mixed 1 / "1" IDs are ambiguous source identities, not two new responses.
+        normalized = str(row["id"])
+        if normalized in seen_ids:
+            raise CalculationError("Snapshot response IDs must be unique and unambiguous.")
+        seen_ids.add(normalized)
+        _snapshot_rating(row["rating"])
+        by_id[identity] = row
+        if group_by is not None:
+            value = row.get(group_by)
+            if type(value) is str:
+                _snapshot_text(value, 256, "Every snapshot response needs an actual bounded group value.")
+            elif type(value) is not int or not -(2**63) <= value <= 2**63 - 1:
+                raise CalculationError("Snapshot group values must be observed nonempty strings or bounded integers.")
+            groups.setdefault((type(value), value), []).append(row)
+            if len(groups) > SNAPSHOT_MAX_GROUPS:
+                raise CalculationError("Snapshot grouping exceeds the 200-group budget.")
+    scenarios = payload.get("scenarios", [])
+    if type(scenarios) is not list or len(scenarios) > SNAPSHOT_MAX_SCENARIOS:
+        raise CalculationError("Snapshot supports at most 50 explicitly requested one-record scenarios.")
+    labels, checked_scenarios = set(), []
+    for scenario in scenarios:
+        if type(scenario) is not dict or set(scenario) != {"label", "response_id", "new_rating"}:
+            raise CalculationError("Each requested snapshot scenario needs label, response_id and new_rating only.")
+        label = _snapshot_text(scenario["label"], 200, "Snapshot scenarios need bounded nonempty labels.")
+        if label in labels:
+            raise CalculationError("Snapshot scenario labels must be unique.")
+        labels.add(label)
+        identity = _snapshot_id(scenario["response_id"])
+        if identity not in by_id:
+            raise CalculationError("Snapshot scenario target must match an actual source ID and its type.")
+        checked_scenarios.append((label, by_id[identity], _snapshot_rating(scenario["new_rating"])))
+    baseline = _snapshot_summary(rows)
+    result = {"metric": "snapshot-nps", "source_kind": "supplied snapshot; not a live API retrieval",
+              "cohort": cohort, "recommendation": dict(recommendation),
+              "selection_policy": "All provided responses in the explicitly declared supplied cohort; no API lifecycle, date or import policy is inferred.",
+              "baseline": baseline}
+    if group_by is not None:
+        result["group_by"] = group_by
+        result["groups"] = [{"group_value": value, **_snapshot_summary(members)}
+                            for (_, value), members in groups.items()]
+    if checked_scenarios:
+        result["scenario_scope"] = "Each requested one-record scenario independently starts from the original baseline cohort and its baseline.source_ids."
+        result["scenarios"] = []
+        baseline_counts = _snapshot_summary(rows, include_ids=False)
+        for label, original, new_rating in checked_scenarios:
+            changed = [dict(row, rating=new_rating) if row is original else row for row in rows]
+            outcome = _snapshot_summary(changed, include_ids=False)
+            if outcome["n"] != baseline["n"]:
+                raise CalculationError("Snapshot scenario changed the fixed denominator.")
+            delta = 100 * ((outcome["promoters"] - outcome["detractors"])
+                           - (baseline["promoters"] - baseline["detractors"])) / baseline["n"]
+            result["scenarios"].append({"label": label, "response_id": original["id"],
+                                        "original_rating": original["rating"], "new_rating": new_rating,
+                                        "baseline": dict(baseline_counts), "result": outcome,
+                                        "delta_nps": delta, "changed_source_ids": [original["id"]]})
+    return result
+
+
+def _snapshot_json_pairs(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise CalculationError("Snapshot JSON must not contain duplicate object keys.")
+        result[key] = value
+    return result
+
+
+def _snapshot_json_constant(value):
+    raise CalculationError("Snapshot JSON must not contain non-finite numbers.")
+
+
+def snapshot_main(argv):
+    parser = argparse.ArgumentParser(description="Bounded NPS on an explicitly supplied snapshot; no dates, API or credentials.")
+    parser.add_argument("--input", required=True, type=Path)
+    parser.add_argument("--group-by", help="An actual observed field, such as month; does not invent dates or scope scenarios")
+    args = parser.parse_args(argv)
+    try:
+        if not args.input.is_file():
+            raise CalculationError("Snapshot input must be a regular readable JSON file.")
+        with args.input.open("rb") as handle:
+            raw = handle.read(SNAPSHOT_MAX_BYTES + 1)
+        if len(raw) > SNAPSHOT_MAX_BYTES:
+            raise CalculationError("Snapshot input byte budget exceeded.")
+        payload = json.loads(raw.decode("utf-8"), object_pairs_hook=_snapshot_json_pairs,
+                             parse_constant=_snapshot_json_constant)
+        print(json.dumps(calculate_snapshot(payload, args.group_by), allow_nan=False))
+        return 0
+    except CalculationError as error:
+        print(json.dumps({"error": str(error)}))
+        return 2
+    except (OSError, ValueError, TypeError, KeyError, RecursionError, OverflowError):
+        print(json.dumps({"error": "Snapshot calculation refused: check the supplied JSON, cohort, source IDs and verified recommendation definition."}))
+        return 2
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "snapshot-nps":
+        return snapshot_main(sys.argv[2:])
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", required=True, type=Path)
     parser.add_argument("--metric", choices=("nps", "response-rate", "count"), default="nps")
@@ -122,6 +549,10 @@ def main():
     parser.add_argument("--until", required=True)
     parser.add_argument("--timezone", default="America/New_York")
     parser.add_argument("--include-imported", action="store_true", help="Include imported records only when the declared metric definition requires them")
+    parser.add_argument("--observation", choices=("period-end", "current"), default="period-end", help="Completed by period end, or current status in the supplied records")
+    parser.add_argument("--denominator", choices=("sent-status", "attempted"), default="sent-status", help="Sent lifecycle statuses, or surveys with explicit outreach-attempt records (not confirmed delivery)")
+    parser.add_argument("--observed-as-of", help="Source observation timestamp; defaults to the retrieval wrapper's retrieved_at for response rates")
+    parser.add_argument("--latest-in-period", action="store_true", help="Latest completed survey per supplied stable contact ID within this period after import policy; not global app latest")
     args = parser.parse_args()
     try:
         if args.input.stat().st_size > 16_000_000:
@@ -129,7 +560,10 @@ def main():
         payload = json.loads(args.input.read_text())
         rows = payload.get("data") if isinstance(payload, dict) else payload
         result = calculate(rows, args.metric, args.question_id, args.since, args.until, args.timezone,
-                           isinstance(payload, dict) and payload.get("pagination_complete") is True, exclude_imported=not args.include_imported)
+                           isinstance(payload, dict) and payload.get("pagination_complete") is True, exclude_imported=not args.include_imported,
+                           observation=args.observation, denominator=args.denominator,
+                           observed_as_of=args.observed_as_of or (payload.get("retrieved_at") if args.metric == "response-rate" and isinstance(payload, dict) else None),
+                           latest_in_period=args.latest_in_period)
         print(json.dumps(result, allow_nan=False))
         return 0
     except CalculationError as error:

@@ -4,9 +4,11 @@ Use your GuildQuality feedback with your AI assistant to understand trends, find
 
 **[Get GuildQuality Skills (beta)](USAGE.md#1-install-guildquality-skills)**
 
-**Current release: 0.4.0-beta.7.**
+**Current release: 0.4.0-beta.29.**
 
-One collection ZIP works in **ChatGPT and Claude**. The **Gemini Task edition** supports feedback exports and review drafts. Read [Using GuildQuality Skills](USAGE.md) to install the collection, connect your account in ChatGPT or Claude, or start with an approved export or a review you paste into chat.
+One collection ZIP works in **ChatGPT and Claude**. Read [Using GuildQuality Skills](USAGE.md) to install the collection, connect your account, or start with an approved export or a review you paste into chat.
+
+For Gemini, see the [Gemini edition and setup guide](https://github.com/guildquality/guildquality-skills/blob/v0.4.0-beta.7/USAGE.md#gemini-task).
 
 ## Explore the skills
 

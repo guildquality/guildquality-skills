@@ -1,6 +1,6 @@
 # Company API reference
 
-Checked 2026-10-28 against the public [GuildQuality API documentation](https://documenter.getpostman.com/view/2124402/TVRecqCj) and current backend route/controller source. This packaged guide maps reporting tasks to the API and retains known behavior that affects correct analysis. Use the online documentation for additional request/response details.
+Public documentation checked 2026-10-28; reporting behavior reviewed against backend source on 2026-10-31. The public [GuildQuality API documentation](https://documenter.getpostman.com/view/2124402/TVRecqCj) and the inspected backend route/controller source inform this packaged guide. It maps reporting tasks to the API and retains known behavior that affects correct analysis. Use the online documentation for additional request/response details.
 
 ## Look up capabilities when needed
 
@@ -25,10 +25,10 @@ Production base URL: `https://www.guildquality.com/company-api/v3`. The helper r
 
 | GET path | Filters and constraints |
 | --- | --- |
-| `/surveys` | `questions=1` includes answers; `since`, `until`, `dateFilter`, `orderBy`, `status`, `reportId`, `filterByCompanyIds` (comma-separated company IDs), `projectIds[]`, `contactIds[]`, and `isImported[]` narrow the cohort |
+| `/surveys` | `questions=1` includes answers; `attempts=1` includes recorded survey-attempt type/time; `since`, `until`, `dateFilter`, `orderBy`, `status`, `reportId`, `filterByCompanyIds` (comma-separated company IDs), `projectIds[]`, `contactIds[]`, and `isImported[]` narrow the cohort |
 | `/surveys/{id}` | `questions=1`; access checked for the individual record |
 | `/reviews`, `/reviews/{id}` | List supports `since`, `until`, `dateFilter`, `filterByCompanyIds` |
-| `/children` | Accessible direct related-company records with `id`, `name` and `createdAt`; not a verified recursive hierarchy, root identity, physical-branch map or role/permission contract |
+| `/children` | Accessible company records with `id`, `name` and `createdAt`; newer API versions can include nested `children`. Inspect the actual response. A tree alone does not establish the authenticated root, physical-location/division roles, rollup rules or complete account coverage |
 | `/reports` | Non-private saved reports; excludes default All Customer/Lead Surveys |
 | `/team`, `/custom-fields`, `/project-user-roles` | Reference data for interpreting and preparing requests |
 | `/survey-templates` | Can initialize default templates on first access. Blocked by the reporting helper; use administrator-supplied template information instead. Never use it as a connection probe. |
@@ -42,9 +42,31 @@ Survey `projectIds`, `contactIds`, and `isImported` filters require bracket-arra
 
 `contactEmails` on `/contacts/opt-in-status` retains its documented comma-separated form, not bracket arrays. Each endpoint admits only its supported query fields. Query syntax alone does not establish completeness or an intended business cohort.
 
-Saved report filters can override explicit request fields when `reportId` is used. Check the resulting cohort before comparing it with another period or location. Do not treat a report name alone as a complete definition of its filters.
+### Saved views and local analysis
+
+A saved `reportId` can apply useful app filters, but it is not a promise that the API reproduces that view. Some saved settings override explicit fields; explicit dates can also intersect the saved range. The public report listing supplies ID/name, not a complete effective filter definition. Verify the records and any known settings before claiming an app-report match.
+
+The inspected public survey path does not apply the app's latest-feedback-per-contact setting. Its absence is material when the user requests that view. The app can select the latest eligible response across a contact's history before applying period and other filters; keeping the newest response inside a month or quarter is a different selection. Contact IDs permit useful local grouping, but exact reconstruction requires complete authorized coverage of every record that could determine the winner. Never widen account access or claim that a period-only deduplication reproduces the app.
+
+Other saved settings may also differ, including owner/import/completion-mode choices and rating predicates. Establish the effective choice from available authoritative context; an unknown setting is not proof that it is off. Local filtering is useful only when the required fields and complete broader group are available. Check the actual API capabilities before declaring a field unavailable. Do not use signed-in private app endpoints as a customer connector workaround.
+
+For a broad business question, give the supported analysis with a brief, relevant scope note. For an explicitly requested view that cannot be reproduced, preserve the user's intent: explain the business difference briefly and offer an export from that view or a clearly different supported analysis. Avoid technical filter inventories in the answer.
+
+### Attempts and minimal reporting output
+
+`attempts=1` requests recorded attempt entries with `type` and `createdAt`; the reporting helper preserves missing versus explicitly empty lists. An attempt is evidence of outreach being attempted, not successful delivery. Include it when a response-rate definition needs attempted outreach. Verify actual returned coverage before calculating; do not infer missing attempts from an omitted field.
+
+For a numeric reporting task, use `gq_connect.py ... get '...' --all-pages --projection numeric` to omit names, contact details, addresses, comments and action links from the returned data. It retains supported identifiers, dates, status/import flags, numeric question evidence and explicitly returned attempts. This is a data-minimization choice, not anonymization or proof of source completeness. Use only the fields needed for the task; a comment/theme analysis needs an appropriately authorized text source instead.
 
 Survey responses may include `surveyTakeUrl`: this is a respondent action link. Do not open it as a neutral source citation or expose it unnecessarily. Cite the survey ID instead.
+
+## Choose a bounded reporting query
+
+For ordinary numeric questions in GuildQuality Analyze Feedback, prefer its connection helper's `report` command; it applies these query recipes and saves the actual source. The review-only skill does not include that numeric calculator. Use the lower-level GET interface for discovery or a specialized request the reporting command does not cover.
+
+For NPS or completed-feedback counts, request `status=completed`, `dateFilter=endedAt`, the relevant date window and explicit import policy before paging. For a sent-cohort response rate, use `dateFilter=sendAt` and the eligible sent status union `status=completed,in-progress,abandoned,no-response`; include `attempts=1` when that denominator requires it. Keep the requested period for local calculations even when a bounded covering query is needed to include its timezone edges.
+
+Apply supported filters before retrieving a larger group. Do not drop a known status or import restriction while fixing another request field. If a query is too broad, narrow it to the relevant business group and supported fields rather than repeatedly splitting the same inappropriate population. Preserve partial results and diagnose a fixed safe error code before another request; authentication or permission refusal is not a reason to try another key or bypass the connection.
 
 ## Survey status groups and returned states
 
@@ -70,7 +92,7 @@ Survey/review lists default to 50 records per page. Omit `limit` when completene
 
 ```sh
 python3 scripts/gq_connect.py --profile "$HOME/.config/guildquality/customer/connection.json" get '/reports'
-python3 scripts/gq_connect.py --profile "$HOME/.config/guildquality/customer/connection.json" get '/surveys?questions=1&since=2026-09-01&until=2026-09-30&dateFilter=endedAt&isImported[]=0' --all-pages
+python3 scripts/gq_connect.py --profile "$HOME/.config/guildquality/customer/connection.json" get '/surveys?questions=1&since=2026-09-01&until=2026-09-30&dateFilter=endedAt&status=completed&isImported[]=0' --all-pages
 ```
 
 The helper returns `pages_fetched`, `pagination_complete`, `stop_reason`, and `data`. Check these and the process exit status. `pagination_complete: null` means no recognized paging metadata; `false` means unfinished paging. Partial data remains available when a later page fails, but is not a complete report.

@@ -4,20 +4,48 @@ import getpass
 from http.client import HTTPException
 import json
 import os
+import ssl
 from pathlib import Path
 import stat
 import sys
 import time
 from urllib.error import HTTPError, URLError
 from urllib.parse import unquote, urljoin, urlsplit
-from urllib.request import HTTPRedirectHandler, Request, build_opener
+from urllib.request import HTTPRedirectHandler, HTTPSHandler, Request, build_opener
 BASE_URL = 'https://www.guildquality.com/company-api/v3'
 BASE_PATH = '/company-api/v3/'
 TOKEN_ENV = 'GUILDQUALITY_API_TOKEN'
 FILE_ENV = 'GUILDQUALITY_API_TOKEN_FILE'
+ERROR_DIAGNOSTICS = {'tls_certificate_verification_failed': "TLS certificate verification failed. Check this Python runtime's CA trust configuration; account credentials were not tested.", 'tls_context_configuration_failed': 'Could not configure verified HTTPS trust. Check the explicitly selected CA configuration or the operating system CA bundle; account credentials were not tested.', 'network_request_failed': 'Network request failed or timed out. For writes, outcome is unknown: read back before considering another attempt.', 'authentication_refused': 'Authentication or account access was refused; check the configured token and account permissions.', 'rate_limited': 'Rate limit reached; stop and retry later.', 'redirect_refused': 'Redirect refused; credentials were not forwarded. Verify the API endpoint.', 'http_request_failed': 'HTTP request failed; inspect the approved request and current API documentation.'}
 
 class ClientError(Exception):
-    """A message safe to show without server bodies, headers, URLs, or credentials."""
+    """A safe local diagnostic; only predefined codes may cross CLI boundaries."""
+
+    def __init__(self, message, *, code=None):
+        super().__init__(message)
+        self.code = code if isinstance(code, str) and code in ERROR_DIAGNOSTICS else None
+
+def safe_error_diagnostic(error):
+    if isinstance(error, ClientError) and isinstance(error.code, str) and (error.code in ERROR_DIAGNOSTICS):
+        return {'error_code': error.code, 'error': ERROR_DIAGNOSTICS[error.code]}
+    return {}
+
+def verified_tls_context():
+    """Use verified trust, including macOS's CA bundle when no CA was selected.
+
+    Some macOS Python distributions have no usable default CA store. Augment
+    their defaults with the OS bundle without changing global environment,
+    hostname verification, or explicit SSL_CERT_FILE/SSL_CERT_DIR choices.
+    """
+    try:
+        context = ssl.create_default_context()
+        if sys.platform == 'darwin' and 'SSL_CERT_FILE' not in os.environ and ('SSL_CERT_DIR' not in os.environ) and Path('/etc/ssl/cert.pem').is_file():
+            context.load_verify_locations(cafile='/etc/ssl/cert.pem')
+        if context.verify_mode != ssl.CERT_REQUIRED or context.check_hostname is not True:
+            raise ValueError('verified-context-required')
+        return context
+    except (OSError, ValueError):
+        raise ClientError(ERROR_DIAGNOSTICS['tls_context_configuration_failed'], code='tls_context_configuration_failed') from None
 
 def safe_url(value, current=None, base_url=BASE_URL):
     base_path = urlsplit(base_url).path.rstrip('/') + '/'
@@ -114,7 +142,7 @@ def setup_token(filename):
 class NoRedirect(HTTPRedirectHandler):
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
-        raise ClientError('Redirect refused; credentials were not forwarded. Verify the API endpoint.')
+        raise ClientError(ERROR_DIAGNOSTICS['redirect_refused'], code='redirect_refused')
 
 def request_json(method, url, token, body=None, *, base_url=BASE_URL, timeout=30, max_bytes=4000000):
     url = safe_url(url, base_url=base_url)
@@ -139,7 +167,7 @@ def request_json(method, url, token, body=None, *, base_url=BASE_URL, timeout=30
         headers['Content-Type'] = 'application/json'
     request = Request(url, data=data, headers=headers, method=method)
     try:
-        with build_opener(NoRedirect()).open(request, timeout=timeout) as response:
+        with build_opener(NoRedirect(), HTTPSHandler(context=verified_tls_context())).open(request, timeout=timeout) as response:
             raw = response.read(max_bytes + 1)
             if len(raw) > max_bytes:
                 raise ClientError('API response exceeded the configured byte budget.')
@@ -151,14 +179,23 @@ def request_json(method, url, token, body=None, *, base_url=BASE_URL, timeout=30
                 raise ClientError('API returned an unexpected non-JSON response.') from None
     except HTTPError as error:
         if error.code in (401, 403):
-            message = 'Authentication or account access was refused; check the configured token and account permissions.'
+            code = 'authentication_refused'
+            message = ERROR_DIAGNOSTICS[code]
         elif error.code == 429:
-            message = 'Rate limit reached; stop and retry later.'
+            code = 'rate_limited'
+            message = ERROR_DIAGNOSTICS[code]
         elif 300 <= error.code < 400:
-            message = 'Redirect refused; verify the API endpoint.'
+            code = 'redirect_refused'
+            message = ERROR_DIAGNOSTICS[code]
         else:
-            message = 'Request failed; inspect the approved request and current API documentation.'
+            code = 'http_request_failed'
+            message = ERROR_DIAGNOSTICS[code]
         error.close()
-        raise ClientError('HTTP {}. {}'.format(error.code, message)) from None
-    except (URLError, OSError, TimeoutError, HTTPException):
-        raise ClientError('Network request failed or timed out. For writes, outcome is unknown: read back before considering another attempt.') from None
+        raise ClientError('HTTP {}. {}'.format(error.code, message), code=code) from None
+    except ssl.SSLCertVerificationError:
+        raise ClientError(ERROR_DIAGNOSTICS['tls_certificate_verification_failed'], code='tls_certificate_verification_failed') from None
+    except URLError as error:
+        code = 'tls_certificate_verification_failed' if isinstance(error.reason, ssl.SSLCertVerificationError) else 'network_request_failed'
+        raise ClientError(ERROR_DIAGNOSTICS[code], code=code) from None
+    except (OSError, TimeoutError, HTTPException):
+        raise ClientError(ERROR_DIAGNOSTICS['network_request_failed'], code='network_request_failed') from None
