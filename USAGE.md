@@ -2,7 +2,7 @@
 
 Use GuildQuality Skills in ChatGPT or Claude to understand your feedback and write thoughtful review replies. This beta collection includes **Analyze Feedback** and **Respond to Profile Reviews**.
 
-In ChatGPT or Claude, connect your GuildQuality account for fresh feedback and approved replies on your public **GuildQuality profile**. You can also use an export or a review you paste into chat. Use your company's approved AI workspace and share only data your company allows.
+Where your chat supports a private account connection, connect GuildQuality for fresh feedback and approved replies on your public **GuildQuality profile**. You can also use an export or a review you paste into chat. Use your company's approved AI workspace and share only data your company allows.
 
 ## 1. Install GuildQuality Skills
 
@@ -10,7 +10,7 @@ In ChatGPT or Claude, connect your GuildQuality account for fresh feedback and a
 
 Use the same complete collection ZIP in either app. It includes both available skills.
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.35/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
+<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.46/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
 
 Upload the ZIP without unpacking it.
 
@@ -26,23 +26,25 @@ If an installation option is missing, update your app and check with your worksp
 
 Start a new chat with **GuildQuality Skills**. Connect your account or upload an export. You can also paste the review you want to answer.
 
-### Connect your account — recommended in ChatGPT or Claude
+### Connect your account — recommended where supported
 
-An API connection lets the assistant read fresh feedback without downloading a new export each time. Respond to Reviews can also post replies you approve on your GuildQuality profile. Both workflows can use the same saved connection when it is available in their environment.
+An API connection lets the assistant read fresh feedback without downloading a new export each time. Respond to Reviews can also post replies you approve on your GuildQuality profile. Both workflows can use the same saved connection when this chat can access it.
 
-1. Open your [GuildQuality API settings](https://www.guildquality.com/company/manage/account/api). Sign in if asked, and check that you are in the account you want to use.
-2. Turn **API** to **On**. Use the existing **API token**, or choose **Generate** if there isn't one. If you cannot change these settings, ask your GuildQuality administrator for help. Avoid **Regenerate**: it replaces the token used by any existing integrations.
-3. Ask the assistant:
+1. First ask the assistant:
 
-   > Help me connect my GuildQuality account. Check whether this chat can set up and reuse a private API connection. Walk me through setup without asking me to paste my API token into chat.
+   > Help me connect my GuildQuality account. Before I change my API settings, check whether this chat can set up and reuse a private connection. Walk me through supported setup without asking me to paste my API token into chat.
 
-The assistant needs network access and a private place to save the token. Follow its setup instructions. If it provides a terminal command, review the account and locations before running it. Enter your token only at the hidden prompt and select an existing saved report when asked.
+2. If the assistant confirms that setup is supported, open your [GuildQuality API settings](https://www.guildquality.com/company/manage/account/api). Sign in if asked, and check that you are in the account you want to use.
+3. Turn **API** to **On**. Use the existing **API token**, or choose **Generate** if there isn't one. If you cannot change these settings, ask your GuildQuality administrator for help. Avoid **Regenerate**: it replaces the token used by any existing integrations.
+4. Follow the assistant's verified setup steps. If it provides a terminal command, review which account and data it will use before running it. Enter your token only at the hidden prompt and select an existing saved report when asked.
+
+This chat needs a private place to keep the connection and permission to use it. A connection saved on your computer is not automatically available in a web chat. Claude can use folders you explicitly connect through its open Desktop app, but the assistant still needs to check that it can use the connection. Opening the same chat in Desktop does not by itself confirm that access.
 
 **Never paste your API token into chat or upload it.** Keep the saved connection outside the skill and shared folders. The saved token is not encrypted; your computer's file permissions protect it. It may allow more than reporting, so keep it private.
 
-Connection options depend on your AI app and workspace settings. If your chat cannot connect, use an export below. You can also copy a drafted reply into GuildQuality to publish it yourself.
+If this chat cannot connect, use an approved export below or paste the review you want to answer. You can copy a drafted reply into GuildQuality to publish it yourself.
 
-After setup, a fresh chat can check and reuse the saved connection. You should not need to reinstall the skill or enter the token again in that environment. Installing the collection in another app does not transfer the connection.
+A fresh chat can reuse the saved connection only when it can access the same private folder and run the connection helper. Ask it to check first. Installing or updating the collection does not transfer the connection between apps or chats.
 
 ### Or upload an export
 

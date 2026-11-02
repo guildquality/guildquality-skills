@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Bounded arithmetic on retrieved survey records; no network or credential access."""
 import argparse
+import csv
+import hashlib
+import io
+from calendar import monthrange
+from decimal import Decimal, InvalidOperation
 from datetime import date, datetime, timezone as datetime_timezone
 from fractions import Fraction
 import json
@@ -527,6 +532,28 @@ def _snapshot_display_cell(value):
 MONTH_NAMES = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
 
 
+def calendar_period(reference_date, relative):
+    """Resolve a full local calendar month from an explicit date; never read a clock."""
+    if not isinstance(reference_date, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", reference_date):
+        raise CalculationError("Reference date must be an exact valid YYYY-MM-DD local calendar date.")
+    try:
+        reference = date.fromisoformat(reference_date)
+    except ValueError:
+        raise CalculationError("Reference date must be an exact valid YYYY-MM-DD local calendar date.") from None
+    offsets = {"previous-month": -1, "current-month": 0, "next-month": 1}
+    if not isinstance(relative, str) or relative not in offsets:
+        raise CalculationError("Relative period must be previous-month, current-month or next-month.")
+    year, month_index = divmod(reference.year * 12 + reference.month - 1 + offsets[relative], 12)
+    if not 1 <= year <= 9999:
+        raise CalculationError("Requested calendar month is outside supported years 0001 through 9999.")
+    month = month_index + 1
+    first = date(year, month, 1)
+    last = date(year, month, monthrange(year, month)[1])
+    return {"reference_date": reference.isoformat(), "relative": relative,
+            "period": f"{year:04d}-{month:02d}", "period_label": f"{MONTH_NAMES[month - 1]} {year}",
+            "since": first.isoformat(), "until": last.isoformat()}
+
+
 def business_period(since, until):
     first, last = date.fromisoformat(since), date.fromisoformat(until)
     start = f"{MONTH_NAMES[first.month - 1]} {first.day}"
@@ -652,6 +679,250 @@ def snapshot_readout(result):
     return text
 
 
+def _evidence_label(value):
+    value = _snapshot_text(value, 200, "Evidence labels must be nonempty bounded text.")
+    if any(ord(c) < 32 or ord(c) == 127 for c in value):
+        raise CalculationError("Evidence labels must not contain control characters.")
+    return value
+
+
+def _evidence_day(value):
+    if type(value) is str and re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value):
+        try:
+            return date.fromisoformat(value)
+        except ValueError:
+            pass
+    raise CalculationError("Date filters require exact valid YYYY-MM-DD values.")
+
+
+def _evidence_number(value):
+    # JSON callbacks retain the original token; Python floats are already lossy.
+    if type(value) not in (str, int, Decimal):
+        raise CalculationError("Numeric filters require exact bounded decimal values, not floats.")
+    try:
+        text = str(value)
+        if len(text) > 64 or not re.fullmatch(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?", text):
+            raise ValueError()
+        exponent = re.search(r"[eE]([+-]?[0-9]+)$", text)
+        if exponent and abs(int(exponent.group(1))) > 1000:
+            raise ValueError()
+        number = Decimal(text)
+        if not number.is_finite() or not -1000 <= number.as_tuple().exponent <= 1000:
+            raise ValueError()
+        return number
+    except (ValueError, OverflowError, InvalidOperation):
+        raise CalculationError("Numeric filters require valid finite decimal tokens of at most 64 characters and exponent magnitude at most 1000.") from None
+
+
+def count_csv_evidence(raw, spec):
+    """Check supplied memberships against actual CSV rows; never classify meaning."""
+    if type(raw) is not bytes or len(raw) > SNAPSHOT_MAX_BYTES:
+        raise CalculationError("CSV input must be bounded UTF-8 bytes.")
+    if type(spec) is not dict or not {"fields", "scope", "themes"} <= set(spec) or set(spec) - {"fields", "scope", "themes", "rating_association", "recommendation", "record_unit", "group_by"}:
+        raise CalculationError("Evidence spec requires explicit fields, scope and themes; unknown fields are refused.")
+    unit = spec.get("record_unit", "responses")
+    if type(unit) is not str or unit not in ("responses", "reviews"):
+        raise CalculationError("record_unit must be responses or reviews; source kind is caller-verified.")
+    fields = spec["fields"]
+    if type(fields) is not dict or not {"id", "text"} <= set(fields) or set(fields) - {"id", "text", "rating"} or any(type(v) is not str or not v or len(v) > 256 for v in fields.values()) or len(set(fields.values())) != len(fields):
+        raise CalculationError("Map distinct id and text CSV columns explicitly; rating is optional without association.")
+    try:
+        reader = csv.DictReader(io.StringIO(raw.decode("utf-8-sig"), newline=""), strict=True)
+        header = reader.fieldnames
+        if not header or len(header) > 100 or len(set(header)) != len(header) or any(not v for v in header) or not set(fields.values()) <= set(header):
+            raise CalculationError("CSV needs unique nonblank headers and the exact mapped columns.")
+        rows, by_id = [], {}
+        for row in reader:
+            if len(rows) >= SNAPSHOT_MAX_RECORDS or set(row) != set(header) or any(v is None for v in row.values()):
+                raise CalculationError("CSV row budget exceeded or row columns do not match the header.")
+            identifier = row[fields["id"]]
+            _snapshot_id(identifier)
+            if identifier in by_id:
+                raise CalculationError("CSV source IDs must be unique; no automatic deduplication.")
+            rows.append(row)
+            by_id[identifier] = row
+    except (UnicodeError, csv.Error):
+        raise CalculationError("CSV must contain valid bounded UTF-8 records.") from None
+    scope = spec["scope"]
+    if type(scope) is not dict or not {"label"} <= set(scope) or set(scope) - {"label", "filters"}:
+        raise CalculationError("Scope needs a label and optional explicit filters, never a declared count.")
+    scope_label = _evidence_label(scope["label"])
+    filters = scope.get("filters", [])
+    if type(filters) is not list or len(filters) > 8:
+        raise CalculationError("Evidence scope supports at most eight AND filters.")
+    compiled = []
+    for item in filters:
+        if type(item) is not dict or item.get("field") not in header:
+            raise CalculationError("Every filter must name an actual CSV field.")
+        op = item.get("op")
+        if op == "eq" and set(item) == {"field", "op", "value"} and type(item["value"]) is str and len(item["value"]) <= 256:
+            bounds = (item["value"],)
+        elif op == "date-range" and set(item) == {"field", "op", "since", "until"}:
+            bounds = (_evidence_day(item["since"]), _evidence_day(item["until"]))
+        elif op == "numeric-range" and set(item) == {"field", "op", "minimum", "maximum"} and all(type(item[k]) in (int, Decimal) for k in ("minimum", "maximum")):
+            bounds = (_evidence_number(item["minimum"]), _evidence_number(item["maximum"]))
+        else:
+            raise CalculationError("Use exact eq, inclusive date-range or inclusive numeric-range filters.")
+        if len(bounds) == 2 and bounds[0] > bounds[1]:
+            raise CalculationError("Filter lower bound must not exceed its upper bound.")
+        compiled.append((item["field"], op, bounds))
+    selected = []
+    for row in rows:
+        keep = True
+        for field, op, bounds in compiled:
+            value = row[field]
+            if op == "date-range":
+                value = _evidence_day(value)
+            elif op == "numeric-range":
+                value = _evidence_number(value)
+            if not (value == bounds[0] if op == "eq" else bounds[0] <= value <= bounds[1]):
+                keep = False
+                break
+        if keep:
+            selected.append(row[fields["id"]])
+    selected_ids = set(selected)
+    group_by, observed_groups = spec.get("group_by"), set()
+    if "group_by" in spec:
+        if type(group_by) is not str or group_by not in header:
+            raise CalculationError("group_by must name one actual CSV column.")
+        for identifier in selected:
+            value = _evidence_label(by_id[identifier][group_by])
+            observed_groups.add(value)
+            if len(observed_groups) > SNAPSHOT_MAX_GROUPS:
+                raise CalculationError(f"Grouping supports at most {SNAPSHOT_MAX_GROUPS} observed values in the selected rows.")
+    association = spec.get("rating_association", False)
+    if type(association) is not bool:
+        raise CalculationError("rating_association must be an explicit boolean.")
+    if association:
+        if "rating" not in fields:
+            raise CalculationError("Rating association requires an explicit actual rating column.")
+        recommendation = spec.get("recommendation")
+        if type(recommendation) is not dict or set(recommendation) != {"verified", "scale", "basis"} or recommendation["verified"] is not True or recommendation["scale"] != "0-10":
+            raise CalculationError("Rating association requires a verified 0-10 recommendation definition.")
+        _snapshot_text(recommendation["basis"], 1000, "Record the supplied recommendation meaning.")
+    themes = spec["themes"]
+    if type(themes) is not list or not 1 <= len(themes) <= SNAPSHOT_MAX_SCENARIOS:
+        raise CalculationError("Supply between one and fifty evidence themes.")
+    output, labels = [], set()
+    for theme in themes:
+        if type(theme) is not dict or set(theme) != {"label", "evidence"}:
+            raise CalculationError("Each theme needs its unchanged label and evidence, never a declared count.")
+        label = _evidence_label(theme["label"])
+        if label in labels:
+            raise CalculationError("Theme labels must be unique.")
+        labels.add(label)
+        members = theme["evidence"]
+        if type(members) is not list or len(members) > SNAPSHOT_MAX_RECORDS:
+            raise CalculationError("Theme evidence must be a bounded list of source IDs and exact quotes.")
+        identifiers, checked, low = set(), [], 0
+        for member in members:
+            if type(member) is not dict or set(member) != {"id", "quote"} or type(member["id"]) is not str:
+                raise CalculationError("Evidence needs a CSV string source ID and an exact quote.")
+            identifier = member["id"]
+            if identifier in identifiers or identifier not in by_id:
+                raise CalculationError("Theme evidence contains duplicate or unknown source IDs.")
+            if identifier not in selected_ids:
+                raise CalculationError("Theme evidence contains a source ID outside the computed scope.")
+            text, quote = by_id[identifier][fields["text"]], member["quote"]
+            _snapshot_text(quote, 20_000, "Evidence quotes must be nonblank bounded source text.")
+            if not text.strip() or quote not in text:
+                raise CalculationError("Every exact quote must occur in its own nonblank source comment.")
+            identifiers.add(identifier)
+            checked.append({"id": identifier, "quote": quote})
+            if association:
+                rating = numeric_rating(by_id[identifier][fields["rating"]])
+                if rating is None:
+                    raise CalculationError("Rating association requires valid integer 0-10 ratings on every theme response.")
+                low += rating <= 6
+        count = len(identifiers)
+        result = {"label": label, "record_count": count, "response_count": count, "denominator": len(selected),
+                  "readout": f'{count} of {len(selected)} {unit} mention “{label}”.' if selected else f"No {unit} are available for this selection.", "evidence": checked}
+        if group_by is not None:
+            matched = {}
+            for member in checked:
+                value = by_id[member["id"]][group_by]
+                matched.setdefault(value, []).append(member["id"])
+            groups = [{"value": value, "record_count": len(matched[value]),
+                       "source_ids": sorted(matched[value])} for value in sorted(matched)]
+            names = [f'“{group["value"]}”' for group in groups]
+            names = ", ".join(names[:-1]) + f", and {names[-1]}" if len(names) > 2 else " and ".join(names)
+            group_readout = (f'{unit.capitalize()} mentioning “{label}” came from {names}.' if groups else
+                             f'No supporting {unit} were supplied for “{label}”.' if selected else
+                             f"No {unit} are available for this selection.")
+            result["grouping"] = {"matched_group_count": len(groups), "groups": groups, "readout": group_readout}
+        if association:
+            result["rating_association"] = {"low_score_response_count": low, "rated_response_count": count,
+                "readout": f'{low} of {count} {unit} mentioning “{label}” were rated 0–6.' if count else f'No {unit[:-1]} evidence was supplied for “{label}”.'}
+        output.append(result)
+    result = {"state": "checked", "count_unit": unit,
+            "record_unit_basis": "Caller declaration or responses default; source kind is not inferred or verified.",
+            "source_record_count": len(rows), "scope_record_count": len(selected),
+            "verification_scope": {"membership_only": True, "semantic_classification": False,
+                                   "exhaustive_classification": False, "business_source_complete": False},
+            "source_csv_sha256": hashlib.sha256(raw).hexdigest(), "source_response_count": len(rows),
+            "scope_label": scope_label, "scope_response_count": len(selected), "scope_source_ids": selected,
+            "classification_basis": "Supplied memberships checked against source IDs, scope and exact quotes; theme meaning and exhaustiveness are not verified.",
+            "themes": output}
+    if group_by is not None:
+        result["grouping"] = {"field": group_by, "observed_group_count": len(observed_groups),
+                              "observed_groups": sorted(observed_groups),
+                              "basis": "Observed values in selected source rows; business roles and hierarchy are not verified."}
+    return result
+
+
+def evidence_main(argv):
+    parser = argparse.ArgumentParser(description="Check explicit CSV theme memberships and count their actual scope; no classification, API or credentials.", allow_abbrev=False)
+    parser.add_argument("--csv", required=True, type=Path)
+    parser.add_argument("--spec", required=True, type=Path)
+    parser.add_argument("--details", action="store_true")
+    args = parser.parse_args(argv)
+    try:
+        def bounded(path):
+            if not path.is_file():
+                raise CalculationError("Evidence inputs must be regular readable files.")
+            with path.open("rb") as handle:
+                raw = handle.read(SNAPSHOT_MAX_BYTES + 1)
+            if len(raw) > SNAPSHOT_MAX_BYTES:
+                raise CalculationError("Evidence input byte budget exceeded.")
+            return raw
+        spec = json.loads(bounded(args.spec).decode("utf-8"), object_pairs_hook=_snapshot_json_pairs,
+                          parse_constant=_snapshot_json_constant, parse_int=_evidence_number, parse_float=_evidence_number)
+        result = count_csv_evidence(bounded(args.csv), spec)
+        if not args.details:
+            grouping = result.get("grouping")
+            result = {"state": result["state"], "count_unit": result["count_unit"],
+                      "record_unit_basis": result["record_unit_basis"], "scope_record_count": result["scope_record_count"],
+                      "verification_scope": result["verification_scope"], "classification_basis": result["classification_basis"],
+                      "scope_label": result["scope_label"], "scope_response_count": result["scope_response_count"],
+                      "themes": [{key: value for key, value in theme.items() if key != "evidence"} for theme in result["themes"]]}
+            if grouping is not None:
+                result["grouping"] = {key: value for key, value in grouping.items() if key != "field"}
+                for theme in result["themes"]:
+                    theme["grouping"]["groups"] = [{key: value for key, value in group.items() if key != "source_ids"}
+                                                      for group in theme["grouping"]["groups"]]
+        print(json.dumps(result, allow_nan=False))
+        return 0
+    except CalculationError as error:
+        print(json.dumps({"error": str(error)}))
+        return 2
+    except (OSError, ValueError, TypeError, KeyError, RecursionError, OverflowError):
+        print(json.dumps({"error": "Evidence count refused: check CSV shape, explicit mappings, filters and quoted memberships."}))
+        return 2
+
+
+def calendar_main(argv):
+    parser = argparse.ArgumentParser(description="Resolve a full calendar month from an explicit local date; returned since/until dates are inclusive. No clock, source inference, API or credentials.", allow_abbrev=False)
+    parser.add_argument("--reference-date", required=True, help="Explicit local calendar date in YYYY-MM-DD form")
+    parser.add_argument("--relative", required=True, choices=("previous-month", "current-month", "next-month"))
+    args = parser.parse_args(argv)
+    try:
+        print(json.dumps(calendar_period(args.reference_date, args.relative), allow_nan=False))
+        return 0
+    except CalculationError as error:
+        print(json.dumps({"error": str(error)}))
+        return 2
+
+
 def snapshot_main(argv):
     parser = argparse.ArgumentParser(description="Bounded NPS on an explicitly supplied snapshot; no dates, API or credentials.")
     parser.add_argument("--input", required=True, type=Path)
@@ -679,6 +950,10 @@ def snapshot_main(argv):
         return 2
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "evidence-count":
+        return evidence_main(sys.argv[2:])
+    if len(sys.argv) > 1 and sys.argv[1] == "calendar-period":
+        return calendar_main(sys.argv[2:])
     if len(sys.argv) > 1 and sys.argv[1] == "snapshot-nps":
         return snapshot_main(sys.argv[2:])
     parser = argparse.ArgumentParser(description=__doc__)

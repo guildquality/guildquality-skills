@@ -1,11 +1,11 @@
 {
   "files": {
     "LICENSE": "d33791e4cea4b8cc71eace2e10cbc61ba7f89318ad8e633b03a05d2c3ac5d140",
-    "SKILL.md": "fdbc088e5597be0a304bdf9374e5079011e0b51fe5a7e936b932295079c138c3",
+    "SKILL.md": "8428b0e5b98027ebfdde93b46612eff5eeb749fab47980e0e79291226c14310d",
     "references/api.md": "351d77467bf54debdad0f569aee301ccbbd26e11abad8d055f5aaacf3dc685f0",
-    "references/authentication.md": "d4f09d8714b072a9ed2cd6d6595905bdfff285a02dcde44354e99fb86f33c7ce",
+    "references/authentication.md": "7a0db082bf74b8b4f0ae14706a618798e9cdd0413740cbf82fdc33b0058e63fd",
     "references/reviews.md": "341a4b65c381702ee74fb6f05814f90b44d08378837ef77fd69e1bdf05f35e7f",
-    "scripts/gq_api.py": "80975cf260882ac2f5de65e257ac8402a89852fa8f31f32ee3115abf395728b0",
+    "scripts/gq_api.py": "6f5f7e9f77578e740fc913dc00904dd361ef725b5595692fe7286ef7f7df19b7",
     "scripts/gq_connect.py": "8b462046d0074a3213668446f02c08b85e3048a52471c0e0368784bf4ce37e3d",
     "scripts/gq_reviews.py": "ad5ef02749a80ec5e6ca1d78e7ed4d874596091db02e1db7523e160deac62724",
     "scripts/gq_transport.py": "95f7fa25533e868599396645f275cba8c4b1e4d41d79225cc271b56f3951616a"
@@ -14,5 +14,5 @@
   "license_file": "LICENSE",
   "schema_version": 1,
   "skill": "gq-respond-to-reviews",
-  "version": "0.3.0-beta.15"
+  "version": "0.3.0-beta.20"
 }

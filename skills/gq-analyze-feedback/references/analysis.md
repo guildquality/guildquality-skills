@@ -38,6 +38,43 @@ If this client cannot run the packaged helper, use a real supported calculation 
 
 The snapshot command is standard-library-only, bounded and offline. It neither applies API import/lifecycle rules nor proves that missing API rows are absent. Live retrievals, date-window survey counts and sent-cohort response rates retain the dated reporting path below. Never use snapshot mode to turn a partial API retrieval into a complete account result.
 
+### Check counted feedback evidence
+
+Use the installed `scripts/gq_analysis.py evidence-count --csv /private/work/feedback.csv --spec /private/work/evidence.json` for counted comment themes and topic/rating associations. The CSV must represent the chosen, authorized feedback source with one row per response or review and unique source IDs. Preserve lineage when normalizing another source; do not invent missing business fields or identify people from response IDs. Inspect its actual headers, row meaning and field values before preparing the spec.
+
+The spec uses this structure, replacing every placeholder with checked source facts:
+
+```json
+{
+  "record_unit": "responses",
+  "fields": {"id": "ACTUAL_ID_COLUMN", "text": "ACTUAL_COMMENT_COLUMN"},
+  "scope": {
+    "label": "the requested business group and feedback period",
+    "filters": [{"field": "ACTUAL_GROUP_COLUMN", "op": "eq", "value": "ACTUAL_GROUP_VALUE"}]
+  },
+  "themes": [{
+    "label": "the category supported by every included excerpt",
+    "evidence": [{"id": "ACTUAL_SOURCE_ID", "quote": "EXACT_SUPPORTING_EXCERPT"}]
+  }]
+}
+```
+
+`record_unit` is `responses` or `reviews`, chosen from the established source kind; neither means people. Map `rating` only when a rating association is requested. Filters combine with AND: exact string `eq`; inclusive local ISO `date-range` with `since` and `until`; or exact finite JSON `numeric-range` with `minimum` and `maximum`. They select feedback records, not the future month a plan targets. The helper computes the denominator from those rows instead of accepting a stated count. It refuses unknown, duplicate or out-of-scope evidence IDs, blank comments and excerpts not present in their own row. Empty scopes yield no available responses or reviews, not a prevalence ratio.
+
+Classify all relevant text for a claimed prevalence and check contrary evidence and omissions. The checker validates supplied memberships and excerpts, not whether a category is semantically correct or exhaustive. Every excerpt must directly support the assigned concern and any combined claim. Preserve the exact category label when reporting its count. Use a broader supported label when a narrower observation is not stated.
+
+To describe where a theme appears, add optional top-level `group_by` naming the actual, verified business-group column. Each theme’s `grouping.readout` names groups supported by its own matched records; use that statement without combining separate themes’ coverage. The source-level `grouping` lists observed values in the selected rows. It does not establish a complete business hierarchy. Grouping refuses missing or blank selected values and more than 200 observed groups. A group without supplied theme members does not establish that it had no complaints. Without `group_by`, the existing count output is unchanged.
+
+For an observed recommendation-rating association, add `rating_association: true`, map the actual rating column in `fields`, and supply `recommendation` with `verified: true`, `scale: "0-10"` and `basis` recording the actual question wording and scale evidence. This is permitted only for a verified genuine 0–10 recommendation question, not an arbitrary score or star rating. Every matched association record must have a valid integer rating. Use the returned neutral association readout unchanged; it reports observed scores alongside the topic and does not establish effects, causes or rating motivation.
+
+Default output says `checked` and retains the limits of its proof; `--details` includes source IDs, exact excerpts and the source-file hash. Keep that metadata in private supporting work and use the readouts for counted statements. This does not replace API eligibility, pagination, business-group verification or source-completeness checks. Unsupported source shapes or record units need an actual calculation with the same checks rather than invented fields or a relabeled people count.
+
+### Resolve relative calendar months
+
+Use `scripts/gq_analysis.py calendar-period --reference-date YYYY-MM-DD --relative next-month` from the installed skill for an explicit local reference date and `previous-month`, `current-month` or `next-month`. It returns `period`, `period_label`, `since` and `until`; boundaries are inclusive full calendar months. The helper reads no clock, source file, profile or API. Select the reference date from the current conversation or a user-chosen reference, never the last response date in a file. Retain the executed result and use its month label consistently.
+
+For planning, this is the target month, while prior feedback supplies the evidence. For month-to-date reporting, the full calendar window is not a completed period: use the actual observed cutoff and a comparable partial period when needed. Respect explicitly chosen fiscal boundaries instead of treating them as calendar months. If this runtime cannot execute the helper, use a supported calculation tool and the same explicit-date rules without claiming helper execution.
+
 ## Calculate from retrieved records
 
 For routine connected numeric reports, use the connection helper's `report` command. It selects a bounded numeric query and uses this same calculator, so the assistant need not reconstruct API filters for every question. For example:
@@ -109,7 +146,11 @@ For topic/rating association, define the unit (survey, answer, or review), allow
 
 ## Evidence and fallback
 
-Build a compact working evidence table before drafting: each actual response ID, period, rating/category and exact text stays together. Calculate period/group subsets from those rows. For each theme, retain the group of IDs and the subset with supporting text, separating contrary text and no evidence. A blank comment, rating category or absence of criticism is not praise or a theme mention. Praise for one part of service does not establish praise for another. An absent topic is unobserved, not cleared: no provided comment about a billing problem does not establish that billing is not a problem or cannot affect ratings. Check every member before a whole-group claim, including secondary positive claims. Use a count or narrower statement when the full group is not supported; retain a useful all-group finding when it is supported.
+Build a compact working evidence table before drafting: each actual response ID, period, rating/category and exact text stays together. Calculate the requested period/group subsets from those rows. For a quantified theme, first define its inclusion rule in plain language, then explicitly classify the relevant comments against that rule and retain matching response IDs with exact supporting excerpts. Review the matched comments and near misses. Blank comments, rating categories and absence of criticism are not theme evidence. One response may support several themes; count its ID once within each theme and deduplicate unions.
+
+Execute counts from those classifications, rather than counting keywords as a substitute for meaning or rewriting a broad category as a narrower one. Retain a small findings table with each proposed label, scope, counting unit, numerator, applicable denominator and supporting IDs. Calculate nonblank-comment totals independently from response totals. Write each counted sentence from its corresponding finding: changing the category or denominator requires a new calculation. These tables are supporting work, not an extra customer deliverable. If the client cannot perform or retain a reliable classification/count, describe the supported examples without an exact prevalence claim.
+
+For a whole-group statement, check every member and any contrary text, including secondary praise claims. Praise for one part of service does not establish praise for another. An absent topic is unobserved, not cleared: no provided comment about a billing problem does not establish that billing is not a problem or cannot affect ratings. Use a narrower statement when the full group is not supported; retain a useful all-group finding when it is supported.
 
 Lead with what the comments report and recommend an action from that observation. A useful feedback-only lead is “The clearest concern reported here is …” with its actual coverage. For a why question, identify the strongest reported concern to investigate. Mark any tentative explanation from its first mention, including a headline; a later caveat cannot repair a factual causal headline. A concern alongside a rating does not establish that it caused the score, exclude other causes, or prove that a fix would raise it. Praise for one part of service and complaints about another do not identify the responsible team or clear another team. Use verified ownership when available; otherwise recommend a process or propose an owner without assigning blame. Trace secondary praise, examples and closing offers to their exact source IDs and periods, preserving response-based units rather than inventing distinct people. Keep the final answer concise and routine evidence tables in supporting work.
 
