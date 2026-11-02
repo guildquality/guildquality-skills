@@ -10,7 +10,7 @@ Where your chat supports a private account connection, connect GuildQuality for 
 
 Use the same complete collection ZIP in either app. It includes both available skills.
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.46/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
+<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.50/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
 
 Upload the ZIP without unpacking it.
 
@@ -58,7 +58,7 @@ Ask for what you need in your own words. You can name a skill or start with a bu
 
 ### Analyze Feedback
 
-Use **GuildQuality Analyze Feedback** to understand trends, compare locations, and find themes in your feedback. It first checks the data you have shared or connected, then uses the dates, business groups, ratings, and comments available to answer your question.
+Use **GuildQuality Analyze Feedback** to understand trends, compare locations, and find themes in your feedback. It looks through your feedback, then uses the ratings and comments to explain what is happening and where to focus.
 
 If you are not sure where to start, ask:
 
@@ -73,7 +73,7 @@ The assistant can suggest useful questions based on your data. You can also try:
 - “What are our teams doing well that we should repeat elsewhere?”
 - “Help me prepare a customer experience update for our leadership team.”
 
-Choose a period covered by your data. The assistant should explain which records support the answer and point out gaps that affect the conclusion. Check those details before making decisions.
+Choose a period covered by your feedback. The assistant should back up its findings with scores or comments and explain any gaps that affect your next step. Check those details before making decisions.
 
 To move from a finding to a reply, ask, “Help me respond to those customers.” In ChatGPT or Claude, ask it to use **GuildQuality Respond to Reviews** if it does not choose that skill.
 
