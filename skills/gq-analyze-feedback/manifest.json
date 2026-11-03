@@ -1,12 +1,12 @@
 {
   "files": {
     "LICENSE": "d33791e4cea4b8cc71eace2e10cbc61ba7f89318ad8e633b03a05d2c3ac5d140",
-    "SKILL.md": "e16a27027515f2d63f64c6dc506aad1bc931fc9bfbe76f6d0cd67fe9327075b8",
-    "references/analysis.md": "13f81a3e40b6020231f070daea2cf190123ecb23ebf5c8346bc315d3f5301f3e",
+    "SKILL.md": "84bf3b7d02bcc6f5bcd82155be30e458409fa3a98040cb056c39f48599d3c09f",
+    "references/analysis.md": "f5a5fd9d3c0ea695f5a4afa395cc4be8f77af05a24af0c60aeec8845fde77be0",
     "references/api.md": "351d77467bf54debdad0f569aee301ccbbd26e11abad8d055f5aaacf3dc685f0",
     "references/authentication.md": "371dfff44d2b8cc41a98dd5bd1b4cc9fcabff50a5a37ded31d5a8c107ae6924f",
-    "scripts/gq_analysis.py": "cec65ca7568e3a574a270ff3c3c392b51d1a450222c7cedd9fbf2c44d26e1035",
-    "scripts/gq_api.py": "c4ab47d21c86ff243947e255fe03f9a58dfbb25621b42746f1c5e7dd770e3506",
+    "scripts/gq_analysis.py": "d68241b183f5c0354592775c52da291e21aa7a037d5ac04da649a7237c43c4fe",
+    "scripts/gq_api.py": "7559210b50c1a318231ae881f5c21de3a59096cf1acd091c4be991ea73ec04d8",
     "scripts/gq_connect.py": "8b462046d0074a3213668446f02c08b85e3048a52471c0e0368784bf4ce37e3d",
     "scripts/gq_transport.py": "651b402749b96d81825ee664fd85078035057e81a6024edcdbf0f99a1a16ce94"
   },
@@ -14,5 +14,5 @@
   "license_file": "LICENSE",
   "schema_version": 1,
   "skill": "gq-analyze-feedback",
-  "version": "0.2.8-beta.65"
+  "version": "0.2.8-beta.67"
 }

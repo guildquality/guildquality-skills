@@ -10,7 +10,7 @@ Where your chat supports a private account connection, connect GuildQuality for 
 
 Use the same complete collection ZIP in either app. It includes both available skills.
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.62/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
+<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.64/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
 
 Upload the ZIP without unpacking it.
 
@@ -59,6 +59,8 @@ Ask for what you need in your own words. You can name a skill or start with a bu
 ### Analyze Feedback
 
 Use **GuildQuality Analyze Feedback** to understand trends, compare locations, and find themes in your feedback. It looks through your feedback, then uses the ratings and comments to explain what is happening and where to focus.
+
+It can use Satisfaction Index, Average Rating, or NPS. If it needs to know which score your report uses, it will ask.
 
 If you are not sure where to start, ask:
 

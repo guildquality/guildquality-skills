@@ -20,9 +20,64 @@ Use `/children` as one source of accessible related-company IDs when needed. New
 
 Follow all pages and inspect completeness. Report selected and usable records separately. Do not treat the first 50 records, a page limit, a timeout, or inaccessible children as the complete account. If filtering must be local, retrieve the full broader cohort before computing it, or disclose the limit.
 
+## Match the reporting index
+
+Use an explicitly requested measure first. Otherwise use the selected report's verified index. Use the company's effective index only when no report is selected or the selected report is verified to inherit it. A missing report setting in an API response does not prove inheritance. A connection profile's report identity marker does not establish which report view the user wants.
+
+The documented public report metadata returns an ID and name, not the saved index preference. A report ID can select feedback without converting the returned raw question ratings into that report's score. Obtain the preference from actual available account/report settings, a report export or the customer; never manufacture a verified preference from an API omission, question name or assumed default. If it is unknown, give any supported qualitative finding and ask once: “Which score should I use for this report—Satisfaction Index, Average Rating, or NPS?” Reuse their choice until the report or requested measure changes. Do not calculate a substitute score while waiting. “Satisfaction Index” alone does not identify its positive-rating threshold; clarify that rule if it is still unknown.
+
+The same recommendation answers can contribute to different indexes. Match the calculation, selected questions, weighting and units, as well as the customer's term:
+
+| Index ID | Verified setting | Calculation and displayed unit |
+| --- | --- | --- |
+| 1 | 4 stars or better | Percentage of eligible reporting ratings at least 4 |
+| 2 | 5 stars | Percentage of eligible reporting ratings equal to 5 |
+| 3 | 3 stars or better | Percentage of eligible reporting ratings at least 3 |
+| 4 | 2 stars or better | Percentage of eligible reporting ratings at least 2 |
+| 5 | NPS | 100 × (promoters − detractors) / eligible canonical Likely to Recommend answers; score, not percent |
+| 6 | Average Rating | Mean of eligible reporting ratings, out of 5 |
+
+For app reporting, convert source 0–10 answers to the stored 1–5 reporting ratings: 0–1 → 1; 2–3 → 2; 4–6 → 3; 7–8 → 4; 9–10 → 5. This is not the raw average divided by two. Source 1–5 answers retain their actual reporting rating. App NPS uses only the verified canonical Likely to Recommend question: reporting rating 5 is promoter, 4 passive and 1–3 detractor. This also supports verified legacy 1–5 canonical LTR answers; it does not authorize converting arbitrary satisfaction, effort or star questions into NPS. An independently requested NPS from another verified 0–10 recommendation question uses the existing supplied-rating or connected NPS path instead.
+
+App aggregation also matters. A question-based report counts each selected eligible question answer equally. A survey-based report gives each survey equal weight: its positive-rating percentage is rounded first, then those survey percentages are averaged. For a survey-based Average Rating over multiple questions, use the saved per-survey reporting averages from an authoritative source; do not guess their stored precision. One eligible question per survey needs no saved average. If the needed values or weighting are unavailable, ask for the report or its export in plain language. Pool the actual eligible units for an overall score; do not average branch scores. Exclude unanswered/not-applicable ratings; zero on a verified 0–10 scale is a real answer. With no eligible ratings, report no data rather than zero.
+
+Use the installed offline calculator after selecting the authorized feedback and verifying its context:
+
+```sh
+python3 "$gq_skill_dir/scripts/gq_analysis.py" report-index --input /private/work/report-index.json --group-by month
+```
+
+Omit `--group-by` unless the actual source has that established field. The input schema is below; replace all illustrative values with source facts. `verified` and `basis` record evidence already established by the caller; the helper cannot discover account settings or independently verify those declarations.
+
+```json
+{
+  "scope": "October customer feedback",
+  "complete": true,
+  "preferences": {
+    "report_context": "none",
+    "company": {"id": 6, "verified": true, "basis": "Account preference supplied by the customer."}
+  },
+  "aggregation": {
+    "mode": "questions", "question_ids": ["ltr"], "verified": true,
+    "basis": "Report counts selected question responses equally."
+  },
+  "questions": [{
+    "id": "ltr", "scale": "0-10", "meaning": "recommendation", "direction": "higher",
+    "canonical_ltr": true, "verified": true, "basis": "Verified Likely to Recommend identity, wording and scale."
+  }],
+  "responses": [{"id": "S1", "month": "October", "answers": [{"question_id": "ltr", "rating": 9}]}]
+}
+```
+
+`preferences.requested`, `.report` and `.company` accept `{id, verified, basis}`. Set `report_context` to `selected` when a report is in use; provide its verified `report` override or `report_inherits_company: {verified: true, basis: "actual inheritance evidence"}`. If neither is known, leave both absent even when the company index is known: the helper returns `needs_preference` without a score. An explicit user choice belongs in `requested`. For unknown context, `preferences` may be empty; do not mark it `none` merely to use a known company default.
+
+`aggregation.mode` is `questions` or `surveys`, with verified source `basis`. Only question mode takes `question_ids`; survey mode uses all supplied eligible questions. For saved survey averages, add `aggregation.survey_values_basis` and each response's actual `reporting_value` (1–5). `questions` define actual IDs, verified scale (`0-10` or `1-5`), meaning (`recommendation`, `satisfaction`, `effort` or `rating`) and direction (`higher` or `lower`). Use `canonical_ltr: true` only with proof of that identity. Answers take `question_id`, integer `rating` or null for no answer, and optional `scale` when the actual historical source differs. Supply one response per unique actual survey ID and only the selected scope; `complete` means that scope was fully retrieved, not merely that a file was read.
+
+Default output contains `state` and a concise `readout`; `--details` adds preference evidence, counts, aggregation and source IDs for supporting work. Use the computed value and units, adapting verified audience terminology naturally. A missing preference or method withholds the score and returns one plain question. A lower-is-better question does not support an invented positive-rating threshold; obtain the report's verified rule or an authoritative report value before making that interpretation. A separately requested raw satisfaction average or effort measure retains its own verified scale and direction rather than being relabeled as an app index. Keep formulas, conversions and API mechanics in supporting work unless they answer the customer's question.
+
 ## Calculate from supplied ratings
 
-An already selected cohort from a supplied export or pasted snapshot can contain valid recommendation ratings without dates, API question IDs or survey lifecycle fields. Do not invent those fields or dates. Verify from the actual source that this is a genuine 0–10 recommendation question and describe which provided ratings the user wants included. This route calculates only that selected snapshot; it does not retrieve records, establish account-wide completeness or reproduce undocumented native-product eligibility.
+For an explicitly requested NPS, an already selected cohort from supplied feedback can contain valid recommendation ratings without dates, API question IDs or survey lifecycle fields. Do not invent those fields or dates. Verify from the actual source that this is a genuine 0–10 recommendation question and describe which provided ratings the user wants included. This snapshot command calculates only that selected NPS snapshot; it does not choose a reporting index, apply legacy 1–5 conversion, retrieve records, establish account-wide completeness or reproduce undocumented native-product eligibility. Use the reporting-index method above for the chosen app index.
 
 Save a calculation input in the user's private workspace with a nonempty `cohort` description, `recommendation` containing `verified: true`, `scale: "0-10"` and a `basis` quoting or describing the actual question evidence, and `responses` with each actual `id` and integer `rating`. Retain an actual group field such as `month` when grouping is requested; keep unnecessary contact details out. Never set verification merely because a column is called NPS or contains values from 0 to 10.
 
@@ -151,6 +206,8 @@ Build a compact working evidence table before drafting: each actual response ID,
 Execute counts from those classifications, rather than counting keywords as a substitute for meaning or rewriting a broad category as a narrower one. Retain a small findings table with each proposed label, scope, counting unit, numerator, applicable denominator and supporting IDs. Calculate nonblank-comment totals independently from response totals. Write each counted sentence from its corresponding finding: changing the category or denominator requires a new calculation. These tables are supporting work, not an extra customer deliverable. If the client cannot perform or retain a reliable classification/count, describe the supported examples without an exact prevalence claim.
 
 For a whole-group statement, check every member and any contrary text, including secondary praise claims. Praise for one part of service does not establish praise for another. An absent topic is unobserved, not cleared: no provided comment about a billing problem does not establish that billing is not a problem or cannot affect ratings. Use a narrower statement when the full group is not supported; retain a useful all-group finding when it is supported.
+
+Before writing a contrast between kinds of problems, check the actual counterexamples. Feedback about an unfinished repair remains evidence of a repair concern even when the same comment describes trouble booking another visit. It does not establish fault, and the contact trouble does not clear the work or technicians. In an ordinary overview, state both reported experiences and what to check rather than choosing a causal explanation. Qualifiers such as “possible” do not make an unsupported exclusion valid. A later quote or follow-up recommendation cannot repair a contradictory claim earlier in the answer. Keep this check in the supporting work; give the customer the plain findings and actions.
 
 Lead with what the comments report and recommend an action from that observation. A useful feedback-only lead is “The clearest concern reported here is …” with its actual coverage. For a why question, identify the strongest reported concern to investigate. Mark any tentative explanation from its first mention, including a headline; a later caveat cannot repair a factual causal headline. A concern alongside a rating does not establish that it caused the score, exclude other causes, or prove that a fix would raise it. Praise for one part of service and complaints about another do not identify the responsible team or clear another team. Use verified ownership when available; otherwise recommend a process or propose an owner without assigning blame. Trace secondary praise, examples and closing offers to their exact source IDs and periods, preserving response-based units rather than inventing distinct people. Keep the final answer concise and routine evidence tables in supporting work.
 

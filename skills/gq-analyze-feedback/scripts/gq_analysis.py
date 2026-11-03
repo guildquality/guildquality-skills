@@ -870,6 +870,291 @@ def count_csv_evidence(raw, spec):
     return result
 
 
+REPORTING_INDEX_NAMES = {1: "4 stars or better", 2: "5 stars", 3: "3 stars or better",
+                         4: "2 stars or better", 5: "Net Promoter Score (NPS)", 6: "Average rating"}
+REPORTING_STAR_MAP = (1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5)
+
+
+def _index_round(value, places=0):
+    """PHP ROUND_HALF_UP, including negative ties; arithmetic stays exact until display."""
+    factor = 10 ** places
+    magnitude = (abs(value.numerator) * factor * 2 + value.denominator) // (2 * value.denominator)
+    rounded = magnitude if value >= 0 else -magnitude
+    return rounded if not places else rounded / factor
+
+
+def _index_proof(value, allowed, required):
+    if type(value) is not dict or set(value) - allowed or not required <= set(value):
+        raise CalculationError("Reporting context has missing or unsupported fields.")
+    if type(value["verified"]) is not bool:
+        raise CalculationError("Reporting context verification must be a boolean.")
+    _snapshot_text(value["basis"], 2000, "Reporting context needs a bounded nonempty source basis.")
+    return value["verified"]
+
+
+def _index_pending(state, readout):
+    return {"state": state, "readout": readout}
+
+
+def calculate_reporting_index(payload, group_by=None):
+    """Apply an explicitly verified GQ reporting index to an already selected source cohort.
+
+    Caller evidence establishes preference, scope, question identity and report aggregation.
+    This offline calculation neither discovers account preferences nor verifies those declarations.
+    """
+    allowed = {"scope", "complete", "preferences", "aggregation", "questions", "responses"}
+    if (type(payload) is not dict or set(payload) - allowed
+            or not {"scope", "complete", "preferences"} <= set(payload)):
+        raise CalculationError("Reporting index needs scope, completeness and explicit preference context.")
+    scope = _snapshot_text(payload["scope"], 1000, "Reporting index needs an explicit feedback scope.")
+    if type(payload["complete"]) is not bool:
+        raise CalculationError("Reporting index completeness must be a boolean.")
+    prefs = payload["preferences"]
+    if type(prefs) is not dict or set(prefs) - {"requested", "report", "company", "report_context", "report_inherits_company"}:
+        raise CalculationError("Reporting preferences contain unsupported fields.")
+    checked = {}
+    for origin in ("requested", "report", "company"):
+        pref = prefs.get(origin)
+        if pref is None:
+            continue
+        verified = _index_proof(pref, {"id", "verified", "basis"}, {"id", "verified", "basis"})
+        if type(pref["id"]) is not int or pref["id"] not in REPORTING_INDEX_NAMES:
+            raise CalculationError("Reporting index must be an integer ID from 1 through 6.")
+        checked[origin] = (origin, pref, verified)
+    report_context = prefs.get("report_context")
+    if report_context is not None and report_context not in ("none", "selected"):
+        raise CalculationError("Report context must explicitly be none or selected.")
+    inherited = prefs.get("report_inherits_company")
+    inherits_verified = False
+    if inherited is not None:
+        inherits_verified = _index_proof(inherited, {"verified", "basis"}, {"verified", "basis"})
+    if report_context == "none" and (prefs.get("report") is not None or inherited is not None):
+        raise CalculationError("A report preference requires a selected report context.")
+    if prefs.get("report") is not None and inherited is not None:
+        raise CalculationError("A report cannot both override and inherit its reporting index.")
+    if "requested" in checked:
+        selected = checked["requested"]
+    elif report_context == "selected":
+        selected = checked.get("report") if not inherits_verified else checked.get("company")
+    elif report_context == "none":
+        selected = checked.get("company")
+    else:
+        selected = None
+    if selected is None or not selected[2]:
+        return _index_pending("needs_preference", "Which measure do you use in your report: NPS, average rating, or a percentage of positive ratings?")
+    origin, pref, _ = selected
+    index_id = pref["id"]
+    if not payload["complete"]:
+        return _index_pending("incomplete", "I need the rest of the selected feedback before calculating this score.")
+    aggregation = payload.get("aggregation")
+    if aggregation is None:
+        return _index_pending("needs_context", "Does your report give each survey equal weight, or count each question response equally?")
+    verified = _index_proof(aggregation, {"mode", "verified", "basis", "question_ids", "survey_values_basis"},
+                            {"mode", "verified", "basis"})
+    mode = aggregation["mode"]
+    if mode not in ("questions", "surveys"):
+        raise CalculationError("Reporting aggregation must be questions or surveys.")
+    if not verified:
+        return _index_pending("needs_context", "Does your report give each survey equal weight, or count each question response equally?")
+    selected_questions = None
+    if mode == "questions":
+        ids = aggregation.get("question_ids")
+        if type(ids) is not list or not 1 <= len(ids) <= 200:
+            raise CalculationError("Question-based reporting needs its explicit selected question IDs.")
+        selected_questions = set()
+        for identifier in ids:
+            _snapshot_id(identifier)
+            key = str(identifier)
+            if key in selected_questions:
+                raise CalculationError("Selected question IDs must be unique and unambiguous.")
+            selected_questions.add(key)
+    elif "question_ids" in aggregation:
+        raise CalculationError("Survey-based reporting uses all supplied questions, not a guessed question selection.")
+    survey_values_basis = aggregation.get("survey_values_basis")
+    if survey_values_basis is not None:
+        _snapshot_text(survey_values_basis, 2000, "Saved survey averages need a bounded source basis.")
+    definitions = payload.get("questions")
+    rows = payload.get("responses")
+    if type(definitions) is not list or not 1 <= len(definitions) <= 200:
+        raise CalculationError("Reporting index needs at most 200 verified source question definitions.")
+    questions, canonical = {}, []
+    for question in definitions:
+        fields = {"id", "scale", "meaning", "direction", "verified", "basis", "canonical_ltr"}
+        if not _index_proof(question, fields, fields - {"canonical_ltr"}):
+            return _index_pending("needs_context", "I need the question wording and rating scale before calculating this measure.")
+        _snapshot_id(question["id"])
+        key = str(question["id"])
+        if key in questions:
+            raise CalculationError("Question definitions must have unique unambiguous source IDs.")
+        if (question["scale"] not in ("0-10", "1-5")
+                or question["meaning"] not in ("recommendation", "satisfaction", "effort", "rating")
+                or question["direction"] not in ("higher", "lower")
+                or type(question.get("canonical_ltr", False)) is not bool):
+            raise CalculationError("Question meaning, direction or scale is unsupported.")
+        if question.get("canonical_ltr"):
+            if question["meaning"] != "recommendation" or question["direction"] != "higher":
+                raise CalculationError("Canonical LTR must be a verified higher-is-better recommendation question.")
+            canonical.append(key)
+        questions[key] = question
+    if len(canonical) > 1:
+        raise CalculationError("GQ reporting needs one unambiguous canonical LTR question.")
+    if selected_questions is not None and not selected_questions <= questions.keys():
+        raise CalculationError("Every selected question needs a verified source definition.")
+    active = selected_questions if selected_questions is not None else set(questions)
+    if index_id == 5:
+        if not canonical or canonical[0] not in active:
+            return _index_pending("unavailable", "NPS isn’t available from these questions. It needs the verified Likely to Recommend question; satisfaction and other ratings cannot replace it.")
+        active = {canonical[0]}
+    if index_id in (1, 2, 3, 4) and any(questions[key]["direction"] != "higher" for key in active):
+        return _index_pending("needs_context", "This question’s lower ratings mean a better experience. Which positive-rating rule does your report use for it?")
+    if type(rows) is not list or len(rows) > SNAPSHOT_MAX_RECORDS:
+        raise CalculationError("Reporting responses must be a list of at most 10000 surveys.")
+    if group_by is not None and (type(group_by) is not str or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]{0,63}", group_by)):
+        raise CalculationError("Reporting grouping requires one actual bounded field name.")
+    seen, prepared, groups, answer_budget = set(), [], {}, 0
+    needs_survey_values = False
+    for row in rows:
+        if type(row) is not dict or not {"id", "answers"} <= set(row):
+            raise CalculationError("Every reporting survey needs its source ID and answers.")
+        _snapshot_id(row["id"])
+        identity = str(row["id"])
+        if identity in seen:
+            raise CalculationError("Reporting surveys must have unique unambiguous source IDs.")
+        seen.add(identity)
+        answers = row["answers"]
+        if type(answers) is not list or len(answers) > 200:
+            raise CalculationError("Each survey supports at most 200 supplied question answers.")
+        answer_budget += len(answers)
+        if answer_budget > 100000:
+            raise CalculationError("Reporting calculation exceeds its 100000-answer budget.")
+        used, ratings = set(), []
+        for answer in answers:
+            if (type(answer) is not dict or not {"question_id", "rating"} <= set(answer)
+                    or set(answer) - {"question_id", "rating", "scale"}):
+                raise CalculationError("Each answer needs its source question ID, rating and optional actual source scale.")
+            _snapshot_id(answer["question_id"])
+            key = str(answer["question_id"])
+            if key not in questions or key in used:
+                raise CalculationError("Every answer needs a defined, nonduplicated source question ID.")
+            used.add(key)
+            rating = answer["rating"]
+            if rating is None:
+                continue
+            scale = answer.get("scale", questions[key]["scale"])
+            if scale not in ("0-10", "1-5"):
+                raise CalculationError("Each supplied source scale must be 0-10 or 1-5.")
+            low, high = (0, 10) if scale == "0-10" else (1, 5)
+            if type(rating) is not int or not low <= rating <= high:
+                raise CalculationError("Ratings must be integer source values within their verified scale, or null for no answer.")
+            if key in active:
+                ratings.append(REPORTING_STAR_MAP[rating] if low == 0 else rating)
+        item = {"id": row["id"], "ratings": ratings}
+        if mode == "surveys" and index_id == 6:
+            saved = row.get("reporting_value")
+            if saved is not None:
+                if (type(saved) not in (int, float) or not 1 <= saved <= 5 or not math.isfinite(saved)
+                        or survey_values_basis is None):
+                    raise CalculationError("Saved survey averages must be verified finite source values from 1 through 5.")
+                if len(ratings) == 1 and saved != ratings[0]:
+                    raise CalculationError("Saved survey average conflicts with its single source rating.")
+                item["reporting_value"] = Fraction(str(saved))
+            elif len(ratings) == 1:
+                item["reporting_value"] = Fraction(ratings[0])
+            elif len(ratings) > 1:
+                needs_survey_values = True
+        prepared.append(item)
+        if group_by is not None:
+            value = row.get(group_by)
+            _snapshot_id(value)
+            group_key = str(value)
+            if group_key in groups and groups[group_key]["value"] != value:
+                raise CalculationError("Group labels must be unambiguous source values.")
+            groups.setdefault(group_key, {"value": value, "rows": []})["rows"].append(item)
+            if len(groups) > SNAPSHOT_MAX_GROUPS:
+                raise CalculationError("Reporting grouping exceeds the 200-group budget.")
+
+    if needs_survey_values:
+        return _index_pending("needs_context", "To match this report’s average rating, please share its saved survey averages or a report export.")
+
+    def summarize(records):
+        eligible = [row for row in records if row["ratings"] or "reporting_value" in row]
+        ratings = [rating for row in eligible for rating in row["ratings"]]
+        answer_count = len(ratings)
+        result = {"response_count": len(records), "rated_response_count": len(eligible), "answer_count": answer_count,
+                  "source_ids": [row["id"] for row in eligible]}
+        denominator = answer_count if mode == "questions" or index_id == 5 else len(eligible)
+        result.update(denominator=denominator, denominator_unit="question responses" if mode == "questions" or index_id == 5 else "surveys")
+        if index_id == 5:
+            promoters = ratings.count(5)
+            detractors = sum(rating <= 3 for rating in ratings)
+            result.update(promoters=promoters, passives=ratings.count(4), detractors=detractors)
+            exact = Fraction(100 * (promoters - detractors), answer_count) if answer_count else None
+        elif index_id == 6:
+            if mode == "questions":
+                exact = Fraction(sum(ratings), answer_count) if answer_count else None
+            else:
+                exact = sum((row["reporting_value"] for row in eligible), Fraction()) / len(eligible) if eligible else None
+        else:
+            threshold = {1: 4, 2: 5, 3: 3, 4: 2}[index_id]
+            if mode == "questions":
+                good = sum(rating >= threshold for rating in ratings)
+                exact = Fraction(100 * good, answer_count) if answer_count else None
+                result["positive_answer_count"] = good
+            else:
+                survey_values = [_index_round(Fraction(100 * sum(rating >= threshold for rating in row["ratings"]), len(row["ratings"]))) for row in eligible]
+                exact = Fraction(sum(survey_values), len(eligible)) if eligible else None
+        result["value"] = _index_round(exact, 2 if index_id == 6 else 0) if exact is not None else None
+        return result
+
+    summary = summarize(prepared)
+    label = REPORTING_INDEX_NAMES[index_id]
+    def readout(result, group=None):
+        subject = f"{group}: " if group is not None else ""
+        if result["value"] is None:
+            return subject + f"No eligible ratings are available for {scope}."
+        value = f"{result['value']:.2f}" if index_id == 6 else str(result["value"])
+        unit = " out of 5" if index_id == 6 else ("" if index_id == 5 else "%")
+        count_unit = result["denominator_unit"] if result["denominator"] != 1 else ("question response" if result["denominator_unit"] == "question responses" else "survey")
+        measure = label.lower() if index_id == 6 else (label if index_id == 5 else "score")
+        definition = "" if index_id in (5, 6) else f" ({label})"
+        text = subject + f"Your {measure} for {scope} was {value}{unit}{definition}, based on {result['denominator']} {count_unit}."
+        if index_id == 6 and all(questions[key]["direction"] == "lower" for key in active):
+            text += " Lower is better for these questions."
+        return text
+    output = {"state": "complete", "scope": scope, "index": {"id": index_id, "name": label, "source": origin, "basis": pref["basis"]},
+              "aggregation": dict(aggregation), "verification_scope": "Caller-provided source and reporting context; not automatic account preference discovery.",
+              "result": summary, "readout": readout(summary)}
+    if group_by is not None:
+        output["groups"] = [{"group_value": group["value"], "result": summarize(group["rows"])} for group in groups.values()]
+        output["readout"] += "\n" + "\n".join(readout(group["result"], group["group_value"]) for group in output["groups"])
+    return output
+
+
+def reporting_index_main(argv):
+    parser = argparse.ArgumentParser(description="Apply a verified GuildQuality reporting index to a bounded selected feedback cohort; no API or credentials.", allow_abbrev=False)
+    parser.add_argument("--input", required=True, type=Path)
+    parser.add_argument("--group-by")
+    parser.add_argument("--details", action="store_true")
+    args = parser.parse_args(argv)
+    try:
+        if not args.input.is_file():
+            raise CalculationError("Reporting input must be a regular readable JSON file.")
+        with args.input.open("rb") as handle:
+            raw = handle.read(SNAPSHOT_MAX_BYTES + 1)
+        if len(raw) > SNAPSHOT_MAX_BYTES:
+            raise CalculationError("Reporting input byte budget exceeded.")
+        payload = json.loads(raw.decode("utf-8"), object_pairs_hook=_snapshot_json_pairs, parse_constant=_snapshot_json_constant)
+        result = calculate_reporting_index(payload, args.group_by)
+        print(json.dumps(result if args.details else {key: result[key] for key in ("state", "readout")}, allow_nan=False))
+        return 0
+    except CalculationError as error:
+        print(json.dumps({"error": str(error)}))
+        return 2
+    except (OSError, ValueError, TypeError, KeyError, RecursionError, OverflowError):
+        print(json.dumps({"error": "Reporting calculation refused: check the verified index, question definitions, aggregation and source answers."}))
+        return 2
+
+
 def evidence_main(argv):
     parser = argparse.ArgumentParser(description="Check explicit CSV theme memberships and count their actual scope; no classification, API or credentials.", allow_abbrev=False)
     parser.add_argument("--csv", required=True, type=Path)
@@ -950,6 +1235,8 @@ def snapshot_main(argv):
         return 2
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "report-index":
+        return reporting_index_main(sys.argv[2:])
     if len(sys.argv) > 1 and sys.argv[1] == "evidence-count":
         return evidence_main(sys.argv[2:])
     if len(sys.argv) > 1 and sys.argv[1] == "calendar-period":
