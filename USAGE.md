@@ -10,7 +10,7 @@ Where your chat supports a private account connection, connect GuildQuality for 
 
 Use the same complete collection ZIP in either app. It includes both available skills.
 
-<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.57/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
+<p><a class="btn btn-primary btn-lg" href="https://github.com/guildquality/guildquality-skills/releases/download/v0.4.0-beta.62/guildquality-skills.zip">Download GuildQuality Skills (beta)</a></p>
 
 Upload the ZIP without unpacking it.
 

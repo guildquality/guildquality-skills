@@ -4,7 +4,7 @@ Use your feedback with your AI assistant to understand trends, find what needs a
 
 **[Get GuildQuality Skills (beta)](USAGE.md#1-install-guildquality-skills)**
 
-**Current release: 0.4.0-beta.57.**
+**Current release: 0.4.0-beta.62.**
 
 One collection ZIP works in **ChatGPT and Claude**. Read [Using GuildQuality Skills](USAGE.md) to install the collection, connect your account, or start with an approved export or a review you paste into chat.
 
