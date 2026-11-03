@@ -2,7 +2,7 @@
   "author": {
     "name": "GuildQuality"
   },
-  "description": "Understand GuildQuality feedback and draft approved profile review replies.",
+  "description": "Understand customer feedback and draft approved profile review replies.",
   "displayName": "GuildQuality Skills",
   "homepage": "https://help.guildquality.com/gq3/ai-skills/",
   "interface": {
@@ -17,5 +17,5 @@
   "license": "MIT",
   "name": "guildquality-skills",
   "repository": "https://github.com/guildquality/guildquality-skills",
-  "version": "0.4.0-beta.50"
+  "version": "0.4.0-beta.57"
 }
