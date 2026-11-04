@@ -60,7 +60,7 @@ Ask for what you need in your own words. You can name a skill or start with a bu
 
 Use **GuildQuality Analyze Feedback** to understand trends, compare locations, and find themes in your feedback. It looks through your feedback, then uses the ratings and comments to explain what is happening and where to focus.
 
-It can use Satisfaction Index, Average Rating, or NPS. If it needs to know which score your report uses, it will ask.
+It uses your report or account’s chosen score when known. You can ask for Satisfaction Index (4 stars or better), Average Rating, or NPS when your feedback supports it. For example, say “Show average ratings instead.” Keep follow-up questions in the same chat to build on your choice.
 
 If you are not sure where to start, ask:
 

@@ -10,6 +10,14 @@ One collection ZIP works in **ChatGPT and Claude**. Read [Using GuildQuality Ski
 
 For Gemini, see the [Gemini edition and setup guide](https://github.com/guildquality/guildquality-skills/blob/v0.4.0-beta.7/USAGE.md#gemini-task).
 
+## Listen360 Skills
+
+For the **New Listen360** platform, use the separate Listen360 collection.
+
+**[Download Listen360 Skills (beta)](https://github.com/guildquality/guildquality-skills/releases/download/listen360-v0.1.0-beta.7/listen360-skills.zip)**
+
+[Using Listen360 Skills](listen360/USAGE.md) covers setup, feedback analysis and drafting review replies. The same Listen360 ZIP works in ChatGPT or Claude.
+
 ## Explore the skills
 
 | Skill | What it helps you do | Status |
